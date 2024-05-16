@@ -1,0 +1,116 @@
+enum SystemFiletypes {
+  avatar
+  file_in_chat
+}
+
+input UploadingFileMeta {
+  url: String!
+  filename: String!
+  signature: String!
+  systemFiletype: SystemFiletypes!
+}
+
+input UploadingFile {
+  original: UploadingFileMeta!
+  converted: UploadingFileMeta
+}
+
+input CreateOrganizationData {
+  title: String!
+  description: String!
+  inviteTemplate: String
+  avatar: UploadingFile
+}
+
+input CreateRoleData {
+  code: String!
+  name: String!
+  permissions: [String!]!
+}
+
+type SavedFile {
+  originalUrl: String!
+  originalFilename: String!
+  convertedUrl: String
+  convertedFilename: String
+}
+
+type PermissionCategory {
+  name: String!
+  code: String!
+}
+
+type Permission {
+  code: String!
+  name: String!
+  category: PermissionCategory
+}
+
+type Role {
+  id: Int!
+  code: String!
+  name: String!
+  permissions: [Permission!]!
+}
+
+type Member {
+  userId: Int!
+  role: Role!
+  permissions: [Permission!]!
+}
+
+type Organization {
+  id: Int!
+  title: String!
+  description: String!
+  maxMembersCount: Int!
+  maxGroupChatsCount: Int!
+  inviteTemplate: String
+  members: [Member!]!
+  ownerId: Int!
+  avatar: SavedFile
+}
+
+type HasOrganizationsResponse {
+  hasOrganizations: Boolean!
+}
+
+type OrganizationsArray {
+  organizations: [Organization!]!
+}
+
+type ErrorResponse {
+  message: String!
+}
+
+type RolesArray {
+  roles: [Role!]!
+}
+
+type PermissionsArray {
+  permissions: [Permission!]!
+}
+
+union HasOrganizationsErrorResponse = HasOrganizationsResponse | ErrorResponse
+
+union OrganizationErrorResposne = Organization | ErrorResponse
+
+union RoleErrorResponse = Role | ErrorResponse
+
+union OrganizationsArrayErrorResponse = OrganizationsArray | ErrorResponse
+
+union RolesArrayErrorResponse = RolesArray | ErrorResponse
+
+union PermissionsArrayErrorResponse = PermissionsArray | ErrorResponse
+
+type Query {
+  hasOrganizations: HasOrganizationsErrorResponse!
+  getMyOrganizations: OrganizationsArrayErrorResponse!
+  getOrganizationRoles(organizationId: Int!): RolesArrayErrorResponse!
+  getPermissions: PermissionsArrayErrorResponse!
+}
+
+type Mutation {
+  createOrganization(data: CreateOrganizationData!): OrganizationErrorResposne!
+  createRole(organizationId: Int!, roleData: CreateRoleData!): RoleErrorResponse!
+}

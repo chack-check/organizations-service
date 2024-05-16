@@ -1,0 +1,25 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: diffaction-organizations-service-ingress
+  labels:
+    app: diffaction-organizations-service
+  annotations:
+    cert-manager.io/cluster-issuer: "letsencrypt-production"
+spec:
+  ingressClassName: nginx
+  tls:
+    - hosts:
+        - stage.diffaction.com
+      secretName: diffaction-tls
+  rules:
+    - host: stage.diffaction.com
+      http:
+        paths:
+          - path: /api/v1/organizations
+            pathType: Prefix
+            backend:
+              service:
+                name: diffaction-organizations-service
+                port:
+                  number: 8000

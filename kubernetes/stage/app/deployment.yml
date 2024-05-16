@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: diffaction-organizations-service-deployment
+  labels:
+    app: diffaction-organizations-service
+    name: diffaction-organizations-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: diffaction-organizations-service
+  template:
+    metadata:
+      labels:
+        app: diffaction-organizations-service
+    spec:
+      containers:
+        - name: diffaction-organizations-service
+          image: artemowkin/diffaction-organizations-service:latest
+          ports:
+            - containerPort: 8000
+              name: web
+          env:
+            - name: APP_PORT
+              value: "8000"
+            - name: APP_DATABASE_DSN
+              valueFrom:
+                secretKeyRef:
+                  name: organizations-service-credentials
+                  key: database_dsn
+            - name: APP_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: users-service-credentials
+                  key: secret_key

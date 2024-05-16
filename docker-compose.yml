@@ -1,0 +1,32 @@
+version: "3"
+
+services:
+  organizations-db:
+    image: postgres
+    env_file:
+      - .env.dev
+    networks:
+      - chack-check-network
+    volumes:
+      - organizations-pgdata:/var/lib/postgresql/data
+  organizations-service:
+    build:
+      dockerfile: docker/Dockerfile.dev
+      context: .
+    command: go run main.go
+    ports:
+      - 8006:8006
+    env_file:
+      - .env.dev
+    networks:
+      - chack-check-network
+    depends_on:
+      - organizations-db
+
+networks:
+  chack-check-network:
+    name: chack-check-network
+    external: true
+
+volumes:
+  organizations-pgdata:
