@@ -12,8 +12,36 @@ type HasOrganizationsErrorResponse interface {
 	IsHasOrganizationsErrorResponse()
 }
 
-type OrganizationErrorResposne interface {
-	IsOrganizationErrorResposne()
+type InviteDeletedErrorResponse interface {
+	IsInviteDeletedErrorResponse()
+}
+
+type InviteErrorResponse interface {
+	IsInviteErrorResponse()
+}
+
+type InviteHandledErrorResponse interface {
+	IsInviteHandledErrorResponse()
+}
+
+type InvitesArrayErrorResponse interface {
+	IsInvitesArrayErrorResponse()
+}
+
+type MemberErrorResponse interface {
+	IsMemberErrorResponse()
+}
+
+type MembersArrayErrorResponse interface {
+	IsMembersArrayErrorResponse()
+}
+
+type OrganizationDeactivatedErrorResponse interface {
+	IsOrganizationDeactivatedErrorResponse()
+}
+
+type OrganizationErrorResponse interface {
+	IsOrganizationErrorResponse()
 }
 
 type OrganizationsArrayErrorResponse interface {
@@ -22,6 +50,10 @@ type OrganizationsArrayErrorResponse interface {
 
 type PermissionsArrayErrorResponse interface {
 	IsPermissionsArrayErrorResponse()
+}
+
+type RoleDeletedErrorResponse interface {
+	IsRoleDeletedErrorResponse()
 }
 
 type RoleErrorResponse interface {
@@ -51,7 +83,7 @@ type ErrorResponse struct {
 
 func (ErrorResponse) IsHasOrganizationsErrorResponse() {}
 
-func (ErrorResponse) IsOrganizationErrorResposne() {}
+func (ErrorResponse) IsOrganizationErrorResponse() {}
 
 func (ErrorResponse) IsRoleErrorResponse() {}
 
@@ -61,17 +93,69 @@ func (ErrorResponse) IsRolesArrayErrorResponse() {}
 
 func (ErrorResponse) IsPermissionsArrayErrorResponse() {}
 
+func (ErrorResponse) IsInviteErrorResponse() {}
+
+func (ErrorResponse) IsInviteDeletedErrorResponse() {}
+
+func (ErrorResponse) IsInvitesArrayErrorResponse() {}
+
+func (ErrorResponse) IsInviteHandledErrorResponse() {}
+
+func (ErrorResponse) IsMemberErrorResponse() {}
+
+func (ErrorResponse) IsRoleDeletedErrorResponse() {}
+
+func (ErrorResponse) IsOrganizationDeactivatedErrorResponse() {}
+
+func (ErrorResponse) IsMembersArrayErrorResponse() {}
+
 type HasOrganizationsResponse struct {
 	HasOrganizations bool `json:"hasOrganizations"`
 }
 
 func (HasOrganizationsResponse) IsHasOrganizationsErrorResponse() {}
 
+type Invite struct {
+	ID             string `json:"id"`
+	OrganizationID int    `json:"organizationId"`
+	UserID         int    `json:"userId"`
+	Role           *Role  `json:"role"`
+	Status         string `json:"status"`
+}
+
+func (Invite) IsInviteErrorResponse() {}
+
+type InviteDeletedResponse struct {
+	Deleted bool `json:"deleted"`
+}
+
+func (InviteDeletedResponse) IsInviteDeletedErrorResponse() {}
+
+type InviteHandledResponse struct {
+	InviteHandled bool `json:"inviteHandled"`
+}
+
+func (InviteHandledResponse) IsInviteHandledErrorResponse() {}
+
+type InvitesArray struct {
+	Invites []*Invite `json:"invites"`
+}
+
+func (InvitesArray) IsInvitesArrayErrorResponse() {}
+
 type Member struct {
 	UserID      int           `json:"userId"`
 	Role        *Role         `json:"role"`
 	Permissions []*Permission `json:"permissions"`
 }
+
+func (Member) IsMemberErrorResponse() {}
+
+type MembersArray struct {
+	Members []*Member `json:"members"`
+}
+
+func (MembersArray) IsMembersArrayErrorResponse() {}
 
 type Mutation struct {
 }
@@ -88,7 +172,13 @@ type Organization struct {
 	Avatar             *SavedFile `json:"avatar,omitempty"`
 }
 
-func (Organization) IsOrganizationErrorResposne() {}
+func (Organization) IsOrganizationErrorResponse() {}
+
+type OrganizationDeactivatedResponse struct {
+	Deactivated bool `json:"deactivated"`
+}
+
+func (OrganizationDeactivatedResponse) IsOrganizationDeactivatedErrorResponse() {}
 
 type OrganizationsArray struct {
 	Organizations []*Organization `json:"organizations"`
@@ -125,6 +215,12 @@ type Role struct {
 
 func (Role) IsRoleErrorResponse() {}
 
+type RoleDeletedResponse struct {
+	Deleted bool `json:"deleted"`
+}
+
+func (RoleDeletedResponse) IsRoleDeletedErrorResponse() {}
+
 type RolesArray struct {
 	Roles []*Role `json:"roles"`
 }
@@ -136,6 +232,18 @@ type SavedFile struct {
 	OriginalFilename  string  `json:"originalFilename"`
 	ConvertedURL      *string `json:"convertedUrl,omitempty"`
 	ConvertedFilename *string `json:"convertedFilename,omitempty"`
+}
+
+type UpdateOrganizationData struct {
+	Title          string  `json:"title"`
+	Description    string  `json:"description"`
+	InviteTemplate *string `json:"inviteTemplate,omitempty"`
+}
+
+type UpdateRoleData struct {
+	Code        string   `json:"code"`
+	Name        string   `json:"name"`
+	Permissions []string `json:"permissions"`
 }
 
 type UploadingFile struct {

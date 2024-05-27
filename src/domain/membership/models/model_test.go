@@ -145,7 +145,7 @@ func TestCreateMember(t *testing.T) {
 	)
 	member := NewMember(
 		1,
-		role,
+		&role,
 		[]Permission{},
 	)
 
@@ -172,7 +172,7 @@ func TestMemberHasPermission(t *testing.T) {
 	)
 	member := NewMember(
 		1,
-		role,
+		&role,
 		permissions,
 	)
 
@@ -193,7 +193,7 @@ func TestMemberHasPermissionWithRolePermissions(t *testing.T) {
 	)
 	member := NewMember(
 		1,
-		role,
+		&role,
 		[]Permission{},
 	)
 
@@ -214,7 +214,7 @@ func TestMemberHasPermissionWithAnotherPermission(t *testing.T) {
 	)
 	member := NewMember(
 		1,
-		role,
+		&role,
 		[]Permission{},
 	)
 
@@ -232,7 +232,7 @@ func TestSetMemberRole(t *testing.T) {
 	)
 	member := NewMember(
 		1,
-		role,
+		&role,
 		[]Permission{},
 	)
 	newRole := NewRole(
@@ -241,7 +241,7 @@ func TestSetMemberRole(t *testing.T) {
 		"newname",
 		[]Permission{},
 	)
-	member.SetRole(newRole)
+	member.SetRole(&newRole)
 
 	if member.GetRole().GetCode() != newRole.GetCode() {
 		t.Fatalf("Error set member role: %+v != %+v", member.GetRole(), newRole)
@@ -257,7 +257,7 @@ func TestAddPermisions(t *testing.T) {
 	)
 	member := NewMember(
 		1,
-		role,
+		&role,
 		[]Permission{},
 	)
 	addingPermissions := []Permission{
@@ -286,7 +286,7 @@ func TestAddPermisionsWithExisting(t *testing.T) {
 	}
 	member := NewMember(
 		1,
-		role,
+		&role,
 		permissions,
 	)
 
@@ -315,7 +315,7 @@ func TestAddPermisionsWithSame(t *testing.T) {
 	}
 	member := NewMember(
 		1,
-		role,
+		&role,
 		permissions,
 	)
 
@@ -338,7 +338,7 @@ func TestSetPermissions(t *testing.T) {
 	)
 	member := NewMember(
 		1,
-		role,
+		&role,
 		[]Permission{},
 	)
 
@@ -367,7 +367,7 @@ func TestSetPermissionsEmpty(t *testing.T) {
 	}
 	member := NewMember(
 		1,
-		role,
+		&role,
 		permissions,
 	)
 

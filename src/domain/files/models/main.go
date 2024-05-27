@@ -68,7 +68,7 @@ func NewUploadingFileMeta(url string, filename string, signature string, systemF
 	}
 }
 
-func NewUplaodingFile(original UploadingFileMeta, converted *UploadingFileMeta) UploadingFile {
+func NewUploadingFile(original UploadingFileMeta, converted *UploadingFileMeta) UploadingFile {
 	return UploadingFile{
 		original:  original,
 		converted: converted,

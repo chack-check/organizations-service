@@ -52,8 +52,16 @@ func (role Role) GetCode() string {
 	return role.code
 }
 
+func (role *Role) SetCode(code string) {
+	role.code = code
+}
+
 func (role Role) GetName() string {
 	return role.name
+}
+
+func (role *Role) SetName(name string) {
+	role.name = name
 }
 
 func (role Role) GetPermissions() []Permission {
@@ -66,7 +74,7 @@ func (role *Role) SetPermissions(permissions []Permission) {
 
 type Member struct {
 	userId      int
-	role        Role
+	role        *Role
 	permissions []Permission
 }
 
@@ -74,7 +82,7 @@ func (member Member) GetUserId() int {
 	return member.userId
 }
 
-func (member Member) GetRole() Role {
+func (member Member) GetRole() *Role {
 	return member.role
 }
 
@@ -82,7 +90,7 @@ func (member Member) GetPermissions() []Permission {
 	return member.permissions
 }
 
-func (member *Member) SetRole(role Role) {
+func (member *Member) SetRole(role *Role) {
 	member.role = role
 }
 
@@ -131,6 +139,42 @@ func (member *Member) RemovePermissions(permissions []Permission) {
 	member.permissions = newPermissions
 }
 
+type CreateRoleData struct {
+	code        string
+	name        string
+	permissions []Permission
+}
+
+func (model CreateRoleData) GetCode() string {
+	return model.code
+}
+
+func (model CreateRoleData) GetName() string {
+	return model.name
+}
+
+func (model CreateRoleData) GetPermissions() []Permission {
+	return model.permissions
+}
+
+type UpdateRoleData struct {
+	code        string
+	name        string
+	permissions []Permission
+}
+
+func (model UpdateRoleData) GetCode() string {
+	return model.code
+}
+
+func (model UpdateRoleData) GetName() string {
+	return model.name
+}
+
+func (model UpdateRoleData) GetPermissions() []Permission {
+	return model.permissions
+}
+
 func NewPermissionCategory(name string, code string) PermissionCategory {
 	return PermissionCategory{
 		name: name,
@@ -155,10 +199,18 @@ func NewRole(id int, code string, name string, permissions []Permission) Role {
 	}
 }
 
-func NewMember(userId int, role Role, permissions []Permission) Member {
+func NewMember(userId int, role *Role, permissions []Permission) Member {
 	return Member{
 		userId:      userId,
 		role:        role,
+		permissions: permissions,
+	}
+}
+
+func NewCreateRoleData(code string, name string, permissions []Permission) CreateRoleData {
+	return CreateRoleData{
+		code:        code,
+		name:        name,
 		permissions: permissions,
 	}
 }

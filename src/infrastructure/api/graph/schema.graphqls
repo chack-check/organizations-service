@@ -22,7 +22,19 @@ input CreateOrganizationData {
   avatar: UploadingFile
 }
 
+input UpdateOrganizationData {
+  title: String!
+  description: String!
+  inviteTemplate: String
+}
+
 input CreateRoleData {
+  code: String!
+  name: String!
+  permissions: [String!]!
+}
+
+input UpdateRoleData {
   code: String!
   name: String!
   permissions: [String!]!
@@ -59,6 +71,10 @@ type Member {
   permissions: [Permission!]!
 }
 
+type MembersArray {
+  members: [Member!]!
+}
+
 type Organization {
   id: Int!
   title: String!
@@ -91,9 +107,37 @@ type PermissionsArray {
   permissions: [Permission!]!
 }
 
+type Invite {
+  id: String!
+  organizationId: Int!
+  userId: Int!
+  role: Role!
+  status: String!
+}
+
+type InvitesArray {
+  invites: [Invite!]!
+}
+
+type InviteDeletedResponse {
+  deleted: Boolean!
+}
+
+type InviteHandledResponse {
+  inviteHandled: Boolean!
+}
+
+type RoleDeletedResponse {
+  deleted: Boolean!
+}
+
+type OrganizationDeactivatedResponse {
+  deactivated: Boolean!
+}
+
 union HasOrganizationsErrorResponse = HasOrganizationsResponse | ErrorResponse
 
-union OrganizationErrorResposne = Organization | ErrorResponse
+union OrganizationErrorResponse = Organization | ErrorResponse
 
 union RoleErrorResponse = Role | ErrorResponse
 
@@ -103,14 +147,45 @@ union RolesArrayErrorResponse = RolesArray | ErrorResponse
 
 union PermissionsArrayErrorResponse = PermissionsArray | ErrorResponse
 
+union InviteErrorResponse = Invite | ErrorResponse
+
+union InviteDeletedErrorResponse = InviteDeletedResponse | ErrorResponse
+
+union InvitesArrayErrorResponse = InvitesArray | ErrorResponse
+
+union InviteHandledErrorResponse = InviteHandledResponse | ErrorResponse
+
+union MemberErrorResponse = Member | ErrorResponse
+
+union RoleDeletedErrorResponse = RoleDeletedResponse | ErrorResponse
+
+union OrganizationDeactivatedErrorResponse = OrganizationDeactivatedResponse | ErrorResponse
+
+union MembersArrayErrorResponse = MembersArray | ErrorResponse
+
 type Query {
   hasOrganizations: HasOrganizationsErrorResponse!
   getMyOrganizations: OrganizationsArrayErrorResponse!
   getOrganizationRoles(organizationId: Int!): RolesArrayErrorResponse!
+  getOrganizationMembers(organizationId: Int!): MembersArrayErrorResponse!
   getPermissions: PermissionsArrayErrorResponse!
 }
 
 type Mutation {
-  createOrganization(data: CreateOrganizationData!): OrganizationErrorResposne!
+  updateOrganization(organizationId: Int!, data: UpdateOrganizationData!): OrganizationErrorResponse!
+  createOrganization(data: CreateOrganizationData!): OrganizationErrorResponse!
   createRole(organizationId: Int!, roleData: CreateRoleData!): RoleErrorResponse!
+  inviteUser(userId: Int!, organizationId: Int!, roleId: Int!): InviteErrorResponse!
+  deleteInvite(inviteId: String!): InviteDeletedErrorResponse!
+  getActiveInvites(organizationId: Int!): InvitesArrayErrorResponse!
+  getMyInvites: InvitesArrayErrorResponse!
+  handleInviteResponse(inviteId: String!, accept: Boolean!): InviteHandledErrorResponse!
+  deleteMembers(organizationId: Int!, members: [Int!]!): OrganizationErrorResponse!
+  setMemberRole(organizationId: Int!, memberId: Int!, roleId: Int!): MemberErrorResponse!
+  setMemberPermisions(organizationId: Int!, memberId: Int!, permissionCodes: [String!]!): MemberErrorResponse!
+  updateRole(organizationId: Int!, roleId: Int!, roleData: UpdateRoleData!): RoleErrorResponse!
+  deleteRole(organizationId: Int!, roleId: Int!): RoleDeletedErrorResponse!
+  deactivateOrganization(organizationId: Int!): OrganizationDeactivatedErrorResponse!
+  reactivateOrganization(organizationId: Int!): OrganizationErrorResponse!
+  updateOrganizationAvatar(organizationId: Int!, avatar: UploadingFile): OrganizationErrorResponse!
 }

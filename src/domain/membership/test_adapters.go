@@ -16,3 +16,32 @@ func (adapter MockRolesAdapter) GetByOrganization(organization organizationsMode
 		membershipModels.NewRole(1, "member", "Member", []membershipModels.Permission{}),
 	}
 }
+
+func (adapter MockRolesAdapter) GetByOrganizationAndId(organization organizationsModels.Organization, roleId int) *membershipModels.Role {
+	role := membershipModels.NewRole(roleId, "member", "Member", []membershipModels.Permission{})
+	return &role
+}
+
+func (adapter MockRolesAdapter) Delete(role membershipModels.Role) error {
+	return nil
+}
+
+type MockMembersAdapter struct{}
+
+func (adapter MockMembersAdapter) GetByOrganizationAndUserId(organization organizationsModels.Organization, userId int) *membershipModels.Member {
+	role := membershipModels.NewRole(
+		1,
+		"role_code",
+		"role_name",
+		[]membershipModels.Permission{},
+	)
+	member := membershipModels.NewMember(
+		1,
+		&role,
+		[]membershipModels.Permission{},
+	)
+	return &member
+}
+func (adapter MockMembersAdapter) Save(member membershipModels.Member, organizationId int) (*membershipModels.Member, error) {
+	return &member, nil
+}

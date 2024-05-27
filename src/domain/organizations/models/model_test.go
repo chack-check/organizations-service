@@ -59,7 +59,7 @@ func TestCreateOrganizationWithAllData(t *testing.T) {
 	var template = "invite template"
 	role := membershipModels.NewRole(1, "code", "name", []membershipModels.Permission{})
 	var members []membershipModels.Member = []membershipModels.Member{
-		membershipModels.NewMember(1, role, []membershipModels.Permission{}),
+		membershipModels.NewMember(1, &role, []membershipModels.Permission{}),
 	}
 	avatar := filesModels.NewSavedFile("originalUrl", "originalFilename", nil, nil)
 	organization := organizationsModels.NewOrganization(
@@ -209,7 +209,7 @@ func TestAddMembers(t *testing.T) {
 	)
 	role := membershipModels.NewRole(1, "code", "name", []membershipModels.Permission{})
 	newMembers := []membershipModels.Member{
-		membershipModels.NewMember(1, role, []membershipModels.Permission{}),
+		membershipModels.NewMember(1, &role, []membershipModels.Permission{}),
 	}
 	organization.AddMembers(newMembers)
 	if len(organization.GetMembers()) != 1 || organization.GetMembers()[0].GetUserId() != newMembers[0].GetUserId() {
@@ -220,7 +220,7 @@ func TestAddMembers(t *testing.T) {
 func TestAddMembersWithExistingMembers(t *testing.T) {
 	role := membershipModels.NewRole(1, "code", "name", []membershipModels.Permission{})
 	members := []membershipModels.Member{
-		membershipModels.NewMember(1, role, []membershipModels.Permission{}),
+		membershipModels.NewMember(1, &role, []membershipModels.Permission{}),
 	}
 	organization := organizationsModels.NewOrganization(
 		1,
@@ -234,7 +234,7 @@ func TestAddMembersWithExistingMembers(t *testing.T) {
 		nil,
 	)
 	newMembers := []membershipModels.Member{
-		membershipModels.NewMember(2, role, []membershipModels.Permission{}),
+		membershipModels.NewMember(2, &role, []membershipModels.Permission{}),
 	}
 	organization.AddMembers(newMembers)
 	if len(organization.GetMembers()) != 2 {
@@ -248,7 +248,7 @@ func TestAddMembersWithExistingMembers(t *testing.T) {
 func TestAddMembersWithSameMember(t *testing.T) {
 	role := membershipModels.NewRole(1, "code", "name", []membershipModels.Permission{})
 	members := []membershipModels.Member{
-		membershipModels.NewMember(1, role, []membershipModels.Permission{}),
+		membershipModels.NewMember(1, &role, []membershipModels.Permission{}),
 	}
 	organization := organizationsModels.NewOrganization(
 		1,
@@ -262,7 +262,7 @@ func TestAddMembersWithSameMember(t *testing.T) {
 		nil,
 	)
 	newMembers := []membershipModels.Member{
-		membershipModels.NewMember(1, role, []membershipModels.Permission{}),
+		membershipModels.NewMember(1, &role, []membershipModels.Permission{}),
 	}
 	organization.AddMembers(newMembers)
 	if len(organization.GetMembers()) != 1 {
@@ -287,7 +287,7 @@ func TestSetMembers(t *testing.T) {
 	)
 	role := membershipModels.NewRole(1, "code", "name", []membershipModels.Permission{})
 	newMembers := []membershipModels.Member{
-		membershipModels.NewMember(1, role, []membershipModels.Permission{}),
+		membershipModels.NewMember(1, &role, []membershipModels.Permission{}),
 	}
 	organization.SetMembers(newMembers)
 	if len(organization.GetMembers()) != 1 {
@@ -301,7 +301,7 @@ func TestSetMembers(t *testing.T) {
 func TestSetMembersWithExisting(t *testing.T) {
 	role := membershipModels.NewRole(1, "code", "name", []membershipModels.Permission{})
 	members := []membershipModels.Member{
-		membershipModels.NewMember(1, role, []membershipModels.Permission{}),
+		membershipModels.NewMember(1, &role, []membershipModels.Permission{}),
 	}
 	organization := organizationsModels.NewOrganization(
 		1,
@@ -315,7 +315,7 @@ func TestSetMembersWithExisting(t *testing.T) {
 		nil,
 	)
 	newMembers := []membershipModels.Member{
-		membershipModels.NewMember(2, role, []membershipModels.Permission{}),
+		membershipModels.NewMember(2, &role, []membershipModels.Permission{}),
 	}
 	organization.SetMembers(newMembers)
 	if len(organization.GetMembers()) != 1 {
@@ -329,7 +329,7 @@ func TestSetMembersWithExisting(t *testing.T) {
 func TestSetMembersEmpty(t *testing.T) {
 	role := membershipModels.NewRole(1, "code", "name", []membershipModels.Permission{})
 	members := []membershipModels.Member{
-		membershipModels.NewMember(1, role, []membershipModels.Permission{}),
+		membershipModels.NewMember(1, &role, []membershipModels.Permission{}),
 	}
 	organization := organizationsModels.NewOrganization(
 		1,
@@ -352,7 +352,7 @@ func TestSetMembersEmpty(t *testing.T) {
 func TestRemoveMembers(t *testing.T) {
 	role := membershipModels.NewRole(1, "code", "name", []membershipModels.Permission{})
 	members := []membershipModels.Member{
-		membershipModels.NewMember(1, role, []membershipModels.Permission{}),
+		membershipModels.NewMember(1, &role, []membershipModels.Permission{}),
 	}
 	organization := organizationsModels.NewOrganization(
 		1,
@@ -374,7 +374,7 @@ func TestRemoveMembers(t *testing.T) {
 func TestRemoveMembersNotExisting(t *testing.T) {
 	role := membershipModels.NewRole(1, "code", "name", []membershipModels.Permission{})
 	members := []membershipModels.Member{
-		membershipModels.NewMember(1, role, []membershipModels.Permission{}),
+		membershipModels.NewMember(1, &role, []membershipModels.Permission{}),
 	}
 	organization := organizationsModels.NewOrganization(
 		1,
@@ -388,7 +388,7 @@ func TestRemoveMembersNotExisting(t *testing.T) {
 		nil,
 	)
 	deletingMembers := []membershipModels.Member{
-		membershipModels.NewMember(2, role, []membershipModels.Permission{}),
+		membershipModels.NewMember(2, &role, []membershipModels.Permission{}),
 	}
 	organization.RemoveMembers(deletingMembers)
 	if len(organization.GetMembers()) != 1 {
@@ -417,7 +417,7 @@ func TestSetAvatar(t *testing.T) {
 		2,
 		nil,
 	)
-	organization.SetAvatar(avatar)
+	organization.SetAvatar(&avatar)
 	if organization.GetAvatar() == nil {
 		t.Fatalf("Error set avatar: new avatar is nil")
 	}

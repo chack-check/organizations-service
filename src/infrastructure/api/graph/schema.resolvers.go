@@ -8,6 +8,7 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/chack-check/organizations-service/domain/invites"
 	"github.com/chack-check/organizations-service/domain/membership"
 	"github.com/chack-check/organizations-service/domain/organizations"
 	"github.com/chack-check/organizations-service/infrastructure/api/factories"
@@ -16,12 +17,37 @@ import (
 	"github.com/chack-check/organizations-service/infrastructure/api/utils"
 	"github.com/chack-check/organizations-service/infrastructure/database"
 	"github.com/chack-check/organizations-service/infrastructure/events"
+	"github.com/chack-check/organizations-service/infrastructure/grpcservices"
 	"github.com/chack-check/organizations-service/infrastructure/subscriptions"
-	"github.com/golang-jwt/jwt/v5"
+	jwt "github.com/golang-jwt/jwt/v5"
 )
 
+// UpdateOrganization is the resolver for the updateOrganization field.
+func (r *mutationResolver) UpdateOrganization(ctx context.Context, organizationID int, data model.UpdateOrganizationData) (model.OrganizationErrorResponse, error) {
+	token, _ := ctx.Value("token").(*jwt.Token)
+	if err := utils.UserRequired(token); err != nil {
+		return model.ErrorResponse{Message: "Token required"}, nil
+	}
+
+	tokenSubject, err := middlewares.GetTokenSubject(token)
+	if err != nil {
+		return model.ErrorResponse{Message: "Incorrect token"}, nil
+	}
+
+	handler := organizations.NewUpdateOrganizationHandler(
+		database.DatabaseOrganizationsAdapter{},
+	)
+	organization, err := handler.Execute(tokenSubject.UserId, organizationID, factories.UpdateOrganizationDataToModel(data))
+	if err != nil {
+		return model.ErrorResponse{Message: err.Error()}, nil
+	}
+
+	response := factories.OrganizationModelToResponse(*organization)
+	return &response, nil
+}
+
 // CreateOrganization is the resolver for the createOrganization field.
-func (r *mutationResolver) CreateOrganization(ctx context.Context, data model.CreateOrganizationData) (model.OrganizationErrorResposne, error) {
+func (r *mutationResolver) CreateOrganization(ctx context.Context, data model.CreateOrganizationData) (model.OrganizationErrorResponse, error) {
 	token, _ := ctx.Value("token").(*jwt.Token)
 	if err := utils.UserRequired(token); err != nil {
 		return model.ErrorResponse{Message: "Token required"}, nil
@@ -50,7 +76,205 @@ func (r *mutationResolver) CreateOrganization(ctx context.Context, data model.Cr
 
 // CreateRole is the resolver for the createRole field.
 func (r *mutationResolver) CreateRole(ctx context.Context, organizationID int, roleData model.CreateRoleData) (model.RoleErrorResponse, error) {
-	panic(fmt.Errorf("not implemented: CreateRole - createRole"))
+	token, _ := ctx.Value("token").(*jwt.Token)
+	if err := utils.UserRequired(token); err != nil {
+		return model.ErrorResponse{Message: "Token required"}, nil
+	}
+
+	tokenSubject, err := middlewares.GetTokenSubject(token)
+	if err != nil {
+		return model.ErrorResponse{Message: "Incorrect token"}, nil
+	}
+
+	handler := membership.NewCreateRoleHandler(
+		database.DatabaseRolesAdapter{},
+		database.DatabaseMembersAdapter{},
+		database.DatabaseOrganizationsAdapter{},
+	)
+	organization, err := handler.Execute(tokenSubject.UserId, organizationID, factories.CreateRoleDataToModel(roleData))
+	if err != nil {
+		return model.ErrorResponse{Message: err.Error()}, nil
+	}
+
+	response := factories.RoleModelToResponse(*organization)
+	return &response, nil
+}
+
+// InviteUser is the resolver for the inviteUser field.
+func (r *mutationResolver) InviteUser(ctx context.Context, userID int, organizationID int, roleID int) (model.InviteErrorResponse, error) {
+	token, _ := ctx.Value("token").(*jwt.Token)
+	if err := utils.UserRequired(token); err != nil {
+		return model.ErrorResponse{Message: "Token required"}, nil
+	}
+
+	tokenSubject, err := middlewares.GetTokenSubject(token)
+	if err != nil {
+		return model.ErrorResponse{Message: "Incorrect token"}, nil
+	}
+
+	handler := invites.NewInviteMemberHandler(
+		grpcservices.NewUsersAdapter(),
+		database.DatabaseRolesAdapter{},
+		events.InviteEventsAdapter{},
+		database.DatabaseInvitesAdapter{},
+		database.DatabaseOrganizationsAdapter{},
+		database.DatabaseMembersAdapter{},
+	)
+	invite, err := handler.Execute(tokenSubject.UserId, organizationID, userID, roleID)
+	if err != nil {
+		return model.ErrorResponse{Message: err.Error()}, nil
+	}
+
+	response := factories.InviteModelToResponse(*invite)
+	return &response, nil
+}
+
+// DeleteInvite is the resolver for the deleteInvite field.
+func (r *mutationResolver) DeleteInvite(ctx context.Context, inviteID string) (model.InviteDeletedErrorResponse, error) {
+	token, _ := ctx.Value("token").(*jwt.Token)
+	if err := utils.UserRequired(token); err != nil {
+		return model.ErrorResponse{Message: "Token required"}, nil
+	}
+
+	tokenSubject, err := middlewares.GetTokenSubject(token)
+	if err != nil {
+		return model.ErrorResponse{Message: "Incorrect token"}, nil
+	}
+
+	handler := invites.NewCloseInviteHandler(
+		database.DatabaseInvitesAdapter{},
+		database.DatabaseMembersAdapter{},
+	)
+	err = handler.Execute(tokenSubject.UserId, inviteID)
+	if err != nil {
+		return model.ErrorResponse{Message: err.Error()}, nil
+	}
+
+	response := model.InviteDeletedResponse{Deleted: true}
+	return &response, nil
+}
+
+// GetActiveInvites is the resolver for the getActiveInvites field.
+func (r *mutationResolver) GetActiveInvites(ctx context.Context, organizationID int) (model.InvitesArrayErrorResponse, error) {
+	token, _ := ctx.Value("token").(*jwt.Token)
+	if err := utils.UserRequired(token); err != nil {
+		return model.ErrorResponse{Message: "Token required"}, nil
+	}
+
+	tokenSubject, err := middlewares.GetTokenSubject(token)
+	if err != nil {
+		return model.ErrorResponse{Message: "Incorrect token"}, nil
+	}
+
+	handler := invites.NewGetOrganizationInvitesHandler(
+		database.DatabaseInvitesAdapter{},
+		database.DatabaseMembersAdapter{},
+		database.DatabaseOrganizationsAdapter{},
+	)
+	modelInvites, err := handler.Execute(organizationID, tokenSubject.UserId)
+	if err != nil {
+		return model.ErrorResponse{Message: err.Error()}, nil
+	}
+
+	var invitesResponse []*model.Invite
+	for _, modelInvite := range modelInvites {
+		inviteResponse := factories.InviteModelToResponse(modelInvite)
+		invitesResponse = append(invitesResponse, &inviteResponse)
+	}
+
+	response := model.InvitesArray{Invites: invitesResponse}
+	return &response, nil
+}
+
+// GetMyInvites is the resolver for the getMyInvites field.
+func (r *mutationResolver) GetMyInvites(ctx context.Context) (model.InvitesArrayErrorResponse, error) {
+	token, _ := ctx.Value("token").(*jwt.Token)
+	if err := utils.UserRequired(token); err != nil {
+		return model.ErrorResponse{Message: "Token required"}, nil
+	}
+
+	tokenSubject, err := middlewares.GetTokenSubject(token)
+	if err != nil {
+		return model.ErrorResponse{Message: "Incorrect token"}, nil
+	}
+
+	handler := invites.NewGetActiveUserInvitesHandler(
+		database.DatabaseInvitesAdapter{},
+	)
+	modelInvites := handler.Execute(tokenSubject.UserId)
+	var invitesResponse []*model.Invite
+	for _, modelInvite := range modelInvites {
+		inviteResponse := factories.InviteModelToResponse(modelInvite)
+		invitesResponse = append(invitesResponse, &inviteResponse)
+	}
+
+	response := model.InvitesArray{Invites: invitesResponse}
+	return &response, nil
+}
+
+// HandleInviteResponse is the resolver for the handleInviteResponse field.
+func (r *mutationResolver) HandleInviteResponse(ctx context.Context, inviteID string, accept bool) (model.InviteHandledErrorResponse, error) {
+	token, _ := ctx.Value("token").(*jwt.Token)
+	if err := utils.UserRequired(token); err != nil {
+		return model.ErrorResponse{Message: "Token required"}, nil
+	}
+
+	tokenSubject, err := middlewares.GetTokenSubject(token)
+	if err != nil {
+		return model.ErrorResponse{Message: "Incorrect token"}, nil
+	}
+
+	handler := invites.NewInviteResponseHandler(
+		database.DatabaseInvitesAdapter{},
+		database.DatabaseOrganizationsAdapter{},
+	)
+	err = handler.Execute(tokenSubject.UserId, inviteID, accept)
+	if err != nil {
+		return model.ErrorResponse{Message: err.Error()}, nil
+	}
+
+	response := model.InviteHandledResponse{InviteHandled: true}
+	return &response, nil
+}
+
+// DeleteMembers is the resolver for the deleteMembers field.
+func (r *mutationResolver) DeleteMembers(ctx context.Context, organizationID int, members []int) (model.OrganizationErrorResponse, error) {
+	panic(fmt.Errorf("not implemented: DeleteMembers - deleteMembers"))
+}
+
+// SetMemberRole is the resolver for the setMemberRole field.
+func (r *mutationResolver) SetMemberRole(ctx context.Context, organizationID int, memberID int, roleID int) (model.MemberErrorResponse, error) {
+	panic(fmt.Errorf("not implemented: SetMemberRole - setMemberRole"))
+}
+
+// SetMemberPermisions is the resolver for the setMemberPermisions field.
+func (r *mutationResolver) SetMemberPermisions(ctx context.Context, organizationID int, memberID int, permissionCodes []string) (model.MemberErrorResponse, error) {
+	panic(fmt.Errorf("not implemented: SetMemberPermisions - setMemberPermisions"))
+}
+
+// UpdateRole is the resolver for the updateRole field.
+func (r *mutationResolver) UpdateRole(ctx context.Context, organizationID int, roleID int, roleData model.UpdateRoleData) (model.RoleErrorResponse, error) {
+	panic(fmt.Errorf("not implemented: UpdateRole - updateRole"))
+}
+
+// DeleteRole is the resolver for the deleteRole field.
+func (r *mutationResolver) DeleteRole(ctx context.Context, organizationID int, roleID int) (model.RoleDeletedErrorResponse, error) {
+	panic(fmt.Errorf("not implemented: DeleteRole - deleteRole"))
+}
+
+// DeactivateOrganization is the resolver for the deactivateOrganization field.
+func (r *mutationResolver) DeactivateOrganization(ctx context.Context, organizationID int) (model.OrganizationDeactivatedErrorResponse, error) {
+	panic(fmt.Errorf("not implemented: DeactivateOrganization - deactivateOrganization"))
+}
+
+// ReactivateOrganization is the resolver for the reactivateOrganization field.
+func (r *mutationResolver) ReactivateOrganization(ctx context.Context, organizationID int) (model.OrganizationErrorResponse, error) {
+	panic(fmt.Errorf("not implemented: ReactivateOrganization - reactivateOrganization"))
+}
+
+// UpdateOrganizationAvatar is the resolver for the updateOrganizationAvatar field.
+func (r *mutationResolver) UpdateOrganizationAvatar(ctx context.Context, organizationID int, avatar *model.UploadingFile) (model.OrganizationErrorResponse, error) {
+	panic(fmt.Errorf("not implemented: UpdateOrganizationAvatar - updateOrganizationAvatar"))
 }
 
 // HasOrganizations is the resolver for the hasOrganizations field.
@@ -126,9 +350,58 @@ func (r *queryResolver) GetOrganizationRoles(ctx context.Context, organizationID
 	return &response, nil
 }
 
+// GetOrganizationMembers is the resolver for the getOrganizationMembers field.
+func (r *queryResolver) GetOrganizationMembers(ctx context.Context, organizationID int) (model.MembersArrayErrorResponse, error) {
+	token, _ := ctx.Value("token").(*jwt.Token)
+	if err := utils.UserRequired(token); err != nil {
+		return model.ErrorResponse{Message: "Token required"}, nil
+	}
+
+	tokenSubject, err := middlewares.GetTokenSubject(token)
+	if err != nil {
+		return model.ErrorResponse{Message: "Incorrect token"}, nil
+	}
+
+	handler := membership.NewGetOrganizationMembersHandler(
+		database.DatabaseOrganizationsAdapter{},
+	)
+	members, err := handler.Execute(tokenSubject.UserId, organizationID)
+	if err != nil {
+		return model.ErrorResponse{Message: err.Error()}, nil
+	}
+
+	var responseMembers []*model.Member
+	for _, member := range *members {
+		response := factories.MemberModelToResponse(member)
+		responseMembers = append(responseMembers, &response)
+	}
+
+	response := model.MembersArray{Members: responseMembers}
+	return &response, nil
+}
+
 // GetPermissions is the resolver for the getPermissions field.
 func (r *queryResolver) GetPermissions(ctx context.Context) (model.PermissionsArrayErrorResponse, error) {
-	panic(fmt.Errorf("not implemented: GetPermissions - getPermissions"))
+	token, _ := ctx.Value("token").(*jwt.Token)
+	if err := utils.UserRequired(token); err != nil {
+		return model.ErrorResponse{Message: "Token required"}, nil
+	}
+
+	_, err := middlewares.GetTokenSubject(token)
+	if err != nil {
+		return model.ErrorResponse{Message: "Incorrect token"}, nil
+	}
+
+	handler := membership.NewGetPermissionsHandler()
+	permissions := handler.Execute()
+	var responsePermissions []*model.Permission
+	for _, permission := range permissions {
+		response := factories.PermissionModelToResponse(permission)
+		responsePermissions = append(responsePermissions, &response)
+	}
+
+	response := model.PermissionsArray{Permissions: responsePermissions}
+	return &response, nil
 }
 
 // Mutation returns MutationResolver implementation.

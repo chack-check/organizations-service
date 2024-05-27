@@ -13,7 +13,7 @@ func (adapter MockOrganizationsAdapter) Save(organization organizationsModels.Or
 
 func (adapter MockOrganizationsAdapter) GetForUser(userId int, includeNotActive bool) []organizationsModels.Organization {
 	role := membershipModels.NewRole(1, "member", "Member", []membershipModels.Permission{})
-	member := membershipModels.NewMember(userId, role, []membershipModels.Permission{})
+	member := membershipModels.NewMember(userId, &role, []membershipModels.Permission{})
 	members := []membershipModels.Member{member}
 	return []organizationsModels.Organization{
 		organizationsModels.NewOrganization(
@@ -32,7 +32,7 @@ func (adapter MockOrganizationsAdapter) GetForUser(userId int, includeNotActive 
 
 func (adapter MockOrganizationsAdapter) GetByIdForUser(id int, userId int, includeNotActive bool) *organizationsModels.Organization {
 	role := membershipModels.NewRole(1, "member", "Member", []membershipModels.Permission{})
-	member := membershipModels.NewMember(userId, role, []membershipModels.Permission{})
+	member := membershipModels.NewMember(userId, &role, []membershipModels.Permission{})
 	members := []membershipModels.Member{member}
 	organization := organizationsModels.NewOrganization(
 		1,

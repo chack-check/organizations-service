@@ -26,6 +26,18 @@ var MembersCategory = models.NewPermissionCategory(
 	"members",
 )
 
+var ViewInvitesPermission = models.NewPermission(
+	"view_invites",
+	"View invites",
+	&MembersCategory,
+)
+
+var CloseInvitesPermission = models.NewPermission(
+	"close_invites",
+	"Close invites",
+	&MembersCategory,
+)
+
 var InviteMembersPermission = models.NewPermission(
 	"invite_members",
 	"Invite members",
