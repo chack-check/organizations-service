@@ -34,3 +34,7 @@ spec:
                 secretKeyRef:
                   name: users-service-credentials
                   key: secret_key
+            - name: APP_USERS_GRPC_HOST
+              value: "diffaction-users-service"
+            - name: APP_USERS_GRPC_PORT
+              value: "9090"
