@@ -1,15 +1,24 @@
 package events
 
-import "github.com/chack-check/organizations-service/domain/organizations/models"
+import (
+	invitesModels "github.com/chack-check/organizations-service/domain/invites/models"
+	organizationsModels "github.com/chack-check/organizations-service/domain/organizations/models"
+)
 
 type OrganizationEventsAdapter struct{}
 
-func (adapter OrganizationEventsAdapter) SendOrganizationCreated(organization models.Organization) {}
-
-func (adapter OrganizationEventsAdapter) SendOrganizationChanged(organization models.Organization) {}
-
-func (adapter OrganizationEventsAdapter) SendOrganizationDeactivated(organization models.Organization) {
+func (adapter OrganizationEventsAdapter) SendOrganizationCreated(organization organizationsModels.Organization) {
 }
 
-func (adapter OrganizationEventsAdapter) SendOrganizationActivated(organization models.Organization) {
+func (adapter OrganizationEventsAdapter) SendOrganizationChanged(organization organizationsModels.Organization) {
 }
+
+func (adapter OrganizationEventsAdapter) SendOrganizationDeactivated(organization organizationsModels.Organization) {
+}
+
+func (adapter OrganizationEventsAdapter) SendOrganizationActivated(organization organizationsModels.Organization) {
+}
+
+type InviteEventsAdapter struct{}
+
+func (adapter InviteEventsAdapter) SendInviteCreated(invite invitesModels.Invite) {}

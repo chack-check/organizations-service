@@ -2,6 +2,7 @@ package organizations
 
 import (
 	"fmt"
+	"slices"
 
 	filesModels "github.com/chack-check/organizations-service/domain/files/models"
 	filesPorts "github.com/chack-check/organizations-service/domain/files/ports"
@@ -16,6 +17,14 @@ var (
 	ErrMaxOrganizationsLimitReached = fmt.Errorf("max organizations count limit reached")
 	ErrIncorrectFile                = fmt.Errorf("incorrect uploading file")
 	ErrSavingOrganization           = fmt.Errorf("error saving organization")
+	ErrOrganizationNotFound         = fmt.Errorf("organization not found")
+	ErrDeleteMembersPermission      = fmt.Errorf("you have no permission to delete organization members")
+	ErrRoleNotFound                 = fmt.Errorf("role not found")
+	ErrSavingMember                 = fmt.Errorf("error saving member")
+	ErrOrganizationNotOwner         = fmt.Errorf("you are not an owner of organization")
+	ErrMemberNotFound               = fmt.Errorf("member with this user id not found")
+	ErrUpdateOrganizationPermission = fmt.Errorf("you have no permissions to update organization")
+	ErrSavingFile                   = fmt.Errorf("error saving file")
 )
 
 type CreateOrganizationHandler struct {
@@ -130,7 +139,7 @@ func (handler CreateOrganizationHandler) Execute(userId int, createData organiza
 	if err != nil {
 		return nil, err
 	}
-	member := membershipModels.NewMember(userId, *ownerRole, []membershipModels.Permission{})
+	member := membershipModels.NewMember(userId, ownerRole, []membershipModels.Permission{})
 	savedOrganization.SetMembers([]membershipModels.Member{member})
 	savedOrganization, err = handler.organizationsPort.Save(*savedOrganization)
 	if err != nil {
@@ -159,6 +168,165 @@ func (handler GetUserOrganizationsHandler) Execute(userId int) []organizationsMo
 	return activeOrganizations
 }
 
+type UpdateOrganizationHandler struct {
+	organizationsPort organizationsPorts.OrganizationsPort
+}
+
+func (handler UpdateOrganizationHandler) Execute(userId int, organizationId int, updateData organizationsModels.UpdateOrganizationData) (*organizationsModels.Organization, error) {
+	organization := handler.organizationsPort.GetByIdForUser(organizationId, userId, false)
+	if organization == nil {
+		return nil, ErrOrganizationNotFound
+	}
+
+	organization.SetTitle(updateData.GetTitle())
+	organization.SetDescription(updateData.GetDescription())
+	if updateData.GetInviteTemplate() != nil {
+		organization.SetInviteTemplate(*updateData.GetInviteTemplate())
+	}
+
+	savedOrganization, err := handler.organizationsPort.Save(*organization)
+	if err != nil {
+		return nil, ErrSavingOrganization
+	}
+
+	return savedOrganization, nil
+}
+
+type DeleteMembersHandler struct {
+	membersPort       membershipPorts.MembersPort
+	organizationsPort organizationsPorts.OrganizationsPort
+}
+
+func (handler DeleteMembersHandler) Execute(userId int, organizationId int, deletingMembers []int) (*organizationsModels.Organization, error) {
+	organization := handler.organizationsPort.GetByIdForUser(organizationId, userId, false)
+	if organization == nil {
+		return nil, ErrOrganizationNotFound
+	}
+
+	member := handler.membersPort.GetByOrganizationAndUserId(*organization, userId)
+	if member == nil {
+		return nil, ErrOrganizationNotFound
+	}
+
+	if !member.HasPermission(membership.RemoveMembersPermission.GetCode()) && organization.GetOwnerId() != userId {
+		return nil, ErrDeleteMembersPermission
+	}
+
+	var organizationDeletingMembers []membershipModels.Member
+	for _, member := range organization.GetMembers() {
+		if member.GetUserId() == userId {
+			continue
+		}
+
+		if slices.Contains(deletingMembers, member.GetUserId()) {
+			organizationDeletingMembers = append(organizationDeletingMembers, member)
+		}
+	}
+
+	organization.RemoveMembers(organizationDeletingMembers)
+	savedOrganization, err := handler.organizationsPort.Save(*organization)
+	if err != nil {
+		return nil, ErrSavingOrganization
+	}
+
+	return savedOrganization, nil
+}
+
+type DeactivateOrganizationHandler struct {
+	organizationsPort      organizationsPorts.OrganizationsPort
+	organizationEventsPort organizationsPorts.OrganizationEventsPort
+}
+
+func (handler DeactivateOrganizationHandler) Execute(userId int, organizationId int) error {
+	organization := handler.organizationsPort.GetByIdForUser(organizationId, userId, false)
+	if organization == nil {
+		return ErrOrganizationNotFound
+	}
+
+	if organization.GetOwnerId() != userId {
+		return ErrOrganizationNotOwner
+	}
+
+	organization.SetStatus(organizationsModels.OrganizationDeactivated)
+	savedOrganization, err := handler.organizationsPort.Save(*organization)
+	if err != nil {
+		return ErrSavingOrganization
+	}
+
+	handler.organizationEventsPort.SendOrganizationDeactivated(*savedOrganization)
+	return nil
+}
+
+type ReactivateOrganization struct {
+	organizationsPort      organizationsPorts.OrganizationsPort
+	organizationEventsPort organizationsPorts.OrganizationEventsPort
+}
+
+func (handler ReactivateOrganization) Execute(userId int, organizationId int) (*organizationsModels.Organization, error) {
+	organization := handler.organizationsPort.GetByIdForUser(organizationId, userId, true)
+	if organization == nil {
+		return nil, ErrOrganizationNotFound
+	}
+
+	if organization.GetOwnerId() != userId {
+		return nil, ErrOrganizationNotOwner
+	}
+
+	organization.SetStatus(organizationsModels.OrganizationActive)
+	savedOrganization, err := handler.organizationsPort.Save(*organization)
+	if err != nil {
+		return nil, ErrSavingOrganization
+	}
+
+	handler.organizationEventsPort.SendOrganizationActivated(*savedOrganization)
+	return savedOrganization, nil
+}
+
+type UpdateOrganizationAvatarHandler struct {
+	filesPort              filesPorts.FilesPort
+	organizationsPort      organizationsPorts.OrganizationsPort
+	membersPort            membershipPorts.MembersPort
+	organizationEventsPort organizationsPorts.OrganizationEventsPort
+}
+
+func (handler UpdateOrganizationAvatarHandler) Execute(userId int, organizationId int, newAvatar *filesModels.UploadingFile) (*organizationsModels.Organization, error) {
+	organization := handler.organizationsPort.GetByIdForUser(organizationId, userId, false)
+	if organization == nil {
+		return nil, ErrOrganizationNotFound
+	}
+
+	member := handler.membersPort.GetByOrganizationAndUserId(*organization, userId)
+	if member == nil {
+		return nil, ErrMemberNotFound
+	}
+
+	if member.HasPermission(membership.EditOrganizationPermission.GetCode()) && organization.GetOwnerId() != userId {
+		return nil, ErrUpdateOrganizationPermission
+	}
+
+	if newAvatar == nil {
+		organization.SetAvatar(nil)
+	} else {
+		if !handler.filesPort.ValidateUploadingFile(*newAvatar) {
+			return nil, ErrIncorrectFile
+		}
+		savedFile, err := handler.filesPort.SaveFile(*newAvatar)
+		if err != nil {
+			return nil, ErrSavingFile
+		}
+
+		organization.SetAvatar(savedFile)
+	}
+
+	savedOrganization, err := handler.organizationsPort.Save(*organization)
+	if err != nil {
+		return nil, ErrSavingOrganization
+	}
+
+	handler.organizationEventsPort.SendOrganizationChanged(*savedOrganization)
+	return savedOrganization, nil
+}
+
 func NewCreateOrganizationHandler(
 	organizationsPort organizationsPorts.OrganizationsPort,
 	organizationEventsPort organizationsPorts.OrganizationEventsPort,
@@ -181,4 +349,42 @@ func NewHasUserOrganizationsHandler(organizationsPort organizationsPorts.Organiz
 
 func NewGetUserOrganizationsHandler(organizationsPort organizationsPorts.OrganizationsPort) GetUserOrganizationsHandler {
 	return GetUserOrganizationsHandler{organizationsPort: organizationsPort}
+}
+
+func NewUpdateOrganizationHandler(organizationsPort organizationsPorts.OrganizationsPort) UpdateOrganizationHandler {
+	return UpdateOrganizationHandler{organizationsPort: organizationsPort}
+}
+
+func NewDeactivateOrganizationHandler(
+	organizationsPort organizationsPorts.OrganizationsPort,
+	organizationEventsPort organizationsPorts.OrganizationEventsPort,
+) DeactivateOrganizationHandler {
+	return DeactivateOrganizationHandler{
+		organizationsPort:      organizationsPort,
+		organizationEventsPort: organizationEventsPort,
+	}
+}
+
+func NewReactivateOrganizationHandler(
+	organizationsPort organizationsPorts.OrganizationsPort,
+	organizationEventsPort organizationsPorts.OrganizationEventsPort,
+) ReactivateOrganization {
+	return ReactivateOrganization{
+		organizationsPort:      organizationsPort,
+		organizationEventsPort: organizationEventsPort,
+	}
+}
+
+func NewUpdateOrganizationAvatarHandler(
+	filesPort filesPorts.FilesPort,
+	organizationsPort organizationsPorts.OrganizationsPort,
+	membersPort membershipPorts.MembersPort,
+	organizationEventsPort organizationsPorts.OrganizationEventsPort,
+) UpdateOrganizationAvatarHandler {
+	return UpdateOrganizationAvatarHandler{
+		filesPort:              filesPort,
+		organizationsPort:      organizationsPort,
+		membersPort:            membersPort,
+		organizationEventsPort: organizationEventsPort,
+	}
 }

@@ -6,11 +6,13 @@ import (
 )
 
 type MembersPort interface {
-	GetByUserId(userId int) *membershipModels.Member
-	Save(member membershipModels.Member) (*membershipModels.Member, error)
+	GetByOrganizationAndUserId(organization organizationsModels.Organization, userId int) *membershipModels.Member
+	Save(member membershipModels.Member, organizatonId int) (*membershipModels.Member, error)
 }
 
 type RolesPort interface {
 	Save(role membershipModels.Role, organizationId int) (*membershipModels.Role, error)
 	GetByOrganization(organization organizationsModels.Organization) []membershipModels.Role
+	GetByOrganizationAndId(organization organizationsModels.Organization, roleId int) *membershipModels.Role
+	Delete(role membershipModels.Role) error
 }

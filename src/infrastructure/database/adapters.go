@@ -1,9 +1,13 @@
 package database
 
 import (
+	"fmt"
+
 	filesModels "github.com/chack-check/organizations-service/domain/files/models"
+	invitesModels "github.com/chack-check/organizations-service/domain/invites/models"
 	membershipModels "github.com/chack-check/organizations-service/domain/membership/models"
 	organizationsModels "github.com/chack-check/organizations-service/domain/organizations/models"
+	"github.com/google/uuid"
 )
 
 type DatabaseOrganizationsAdapter struct{}
@@ -104,6 +108,17 @@ func (adapter DatabaseMembersAdapter) GetByUserId(userId int) *membershipModels.
 	return &response
 }
 
+func (adapter DatabaseMembersAdapter) GetByOrganizationAndUserId(organization organizationsModels.Organization, userId int) *membershipModels.Member {
+	member := &DBMember{UserID: userId, OrganizationID: organization.GetId()}
+	DatabaseConnection.First(member)
+	if member.ID == 0 {
+		return nil
+	}
+
+	response := DBMemberToModel(*member)
+	return &response
+}
+
 func (adapter DatabaseMembersAdapter) Save(member membershipModels.Member, organizationId int) (*membershipModels.Member, error) {
 	dbMember := ModelMemberToDB(member, organizationId)
 	DatabaseConnection.Save(&dbMember)
@@ -125,11 +140,27 @@ func (adapter DatabaseRolesAdapter) GetByOrganization(organization organizations
 	return rolesModels
 }
 
+func (adapter DatabaseRolesAdapter) GetByOrganizationAndId(organization organizationsModels.Organization, roleId int) *membershipModels.Role {
+	role := DBRole{}
+	DatabaseConnection.Where("id = ? AND organization_id = ?", roleId, organization.GetId()).First(&role)
+	if role.ID == 0 {
+		return nil
+	}
+
+	response := DBRoleToModel(role)
+	return &response
+}
+
 func (adapter DatabaseRolesAdapter) Save(role membershipModels.Role, organizationId int) (*membershipModels.Role, error) {
 	dbRole := ModelRoleToDB(role, organizationId)
 	DatabaseConnection.Save(&dbRole)
 	response := DBRoleToModel(dbRole)
 	return &response, nil
+}
+
+func (adapter DatabaseRolesAdapter) Delete(role membershipModels.Role) error {
+	DatabaseConnection.Delete(&DBRole{ID: uint(role.GetId())})
+	return nil
 }
 
 type DatabaseFilesAdapter struct{}
@@ -158,4 +189,79 @@ func (adapter DatabaseFilesAdapter) SaveFile(file filesModels.UploadingFile) (*f
 
 func (adapter DatabaseFilesAdapter) ValidateUploadingFile(file filesModels.UploadingFile) bool {
 	return true
+}
+
+type DatabaseInvitesAdapter struct{}
+
+func (adapter DatabaseInvitesAdapter) Save(invite invitesModels.Invite) (*invitesModels.Invite, error) {
+	var savingInvite *DBInvite
+	if invite.GetId() != "" {
+		inviteId, err := uuid.Parse(invite.GetId())
+		if err != nil {
+			return nil, fmt.Errorf("invite uuid is incorrect")
+		}
+
+		savingInvite = &DBInvite{
+			ID:             inviteId,
+			OrganizationID: invite.GetOrganization().GetId(),
+			UserID:         invite.GetUserId(),
+			RoleID:         invite.GetRole().GetId(),
+			Status:         invite.GetStatus(),
+		}
+	} else {
+		savingInvite = &DBInvite{
+			OrganizationID: invite.GetOrganization().GetId(),
+			UserID:         invite.GetUserId(),
+			RoleID:         invite.GetRole().GetId(),
+			Status:         invite.GetStatus(),
+		}
+	}
+
+	DatabaseConnection.Save(savingInvite)
+	response := DBInviteToModel(*savingInvite)
+	return &response, nil
+}
+
+func (adapter DatabaseInvitesAdapter) GetById(inviteId string) *invitesModels.Invite {
+	var dbInvite *DBInvite
+	DatabaseConnection.Where("id = ?", inviteId).First(dbInvite)
+	if dbInvite == nil {
+		return nil
+	}
+
+	response := DBInviteToModel(*dbInvite)
+	return &response
+}
+
+func (adapter DatabaseInvitesAdapter) GetByIdForUser(inviteId string, userId int) *invitesModels.Invite {
+	var dbInvite *DBInvite
+	DatabaseConnection.Where("id = ? AND user_id = ?", inviteId, userId).First(dbInvite)
+	if dbInvite == nil {
+		return nil
+	}
+
+	response := DBInviteToModel(*dbInvite)
+	return &response
+}
+
+func (adapter DatabaseInvitesAdapter) GetAllForOrganization(organization organizationsModels.Organization) []invitesModels.Invite {
+	var dbInvites []*DBInvite
+	DatabaseConnection.Where("organization_id = ?", organization.GetId()).Find(&dbInvites)
+	var modelInvites []invitesModels.Invite
+	for _, invite := range dbInvites {
+		modelInvites = append(modelInvites, DBInviteToModel(*invite))
+	}
+
+	return modelInvites
+}
+
+func (adapter DatabaseInvitesAdapter) GetAllForUser(userId int) []invitesModels.Invite {
+	var dbInvites []*DBInvite
+	DatabaseConnection.Where("user_id = ?", userId).Find(&dbInvites)
+	var modelInvites []invitesModels.Invite
+	for _, invite := range dbInvites {
+		modelInvites = append(modelInvites, DBInviteToModel(*invite))
+	}
+
+	return modelInvites
 }

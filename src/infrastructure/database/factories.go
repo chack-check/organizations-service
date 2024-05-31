@@ -2,6 +2,7 @@ package database
 
 import (
 	filesModels "github.com/chack-check/organizations-service/domain/files/models"
+	invitesModels "github.com/chack-check/organizations-service/domain/invites/models"
 	"github.com/chack-check/organizations-service/domain/membership"
 	membershipModels "github.com/chack-check/organizations-service/domain/membership/models"
 	organizationsModels "github.com/chack-check/organizations-service/domain/organizations/models"
@@ -59,9 +60,14 @@ func DBMemberToModel(member DBMember) membershipModels.Member {
 		}
 	}
 
+	var role *membershipModels.Role
+	if member.Role != nil {
+		converted := DBRoleToModel(*member.Role)
+		role = &converted
+	}
 	return membershipModels.NewMember(
 		member.UserID,
-		DBRoleToModel(member.Role),
+		role,
 		permissions,
 	)
 }
@@ -72,10 +78,16 @@ func ModelMemberToDB(member membershipModels.Member, organizationId int) DBMembe
 		permissions = append(permissions, permission.GetCode())
 	}
 
+	var dbRole *DBRole
+	if member.GetRole() != nil {
+		converted := ModelRoleToDB(*member.GetRole(), organizationId)
+		dbRole = &converted
+	}
+
 	return DBMember{
 		UserID:         member.GetUserId(),
 		OrganizationID: organizationId,
-		Role:           ModelRoleToDB(member.GetRole(), organizationId),
+		Role:           dbRole,
 		Permissions:    permissions,
 	}
 }
@@ -127,4 +139,14 @@ func ModelOrganizationToDB(organization organizationsModels.Organization, member
 		OwnerID:            organization.GetOwnerId(),
 		Avatar:             avatar,
 	}
+}
+
+func DBInviteToModel(invite DBInvite) invitesModels.Invite {
+	return invitesModels.NewInvite(
+		invite.ID.String(),
+		DBOrganizationToModel(invite.Organization),
+		invite.UserID,
+		DBRoleToModel(invite.Role),
+		invite.Status,
+	)
 }

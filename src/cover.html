@@ -1,0 +1,1076 @@
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+		<title>models: Go Coverage Report</title>
+		<style>
+			body {
+				background: black;
+				color: rgb(80, 80, 80);
+			}
+			body, pre, #legend span {
+				font-family: Menlo, monospace;
+				font-weight: bold;
+			}
+			#topbar {
+				background: black;
+				position: fixed;
+				top: 0; left: 0; right: 0;
+				height: 42px;
+				border-bottom: 1px solid rgb(80, 80, 80);
+			}
+			#content {
+				margin-top: 50px;
+			}
+			#nav, #legend {
+				float: left;
+				margin-left: 10px;
+			}
+			#legend {
+				margin-top: 12px;
+			}
+			#nav {
+				margin-top: 10px;
+			}
+			#legend span {
+				margin: 0 5px;
+			}
+			.cov0 { color: rgb(192, 0, 0) }
+.cov1 { color: rgb(128, 128, 128) }
+.cov2 { color: rgb(116, 140, 131) }
+.cov3 { color: rgb(104, 152, 134) }
+.cov4 { color: rgb(92, 164, 137) }
+.cov5 { color: rgb(80, 176, 140) }
+.cov6 { color: rgb(68, 188, 143) }
+.cov7 { color: rgb(56, 200, 146) }
+.cov8 { color: rgb(44, 212, 149) }
+.cov9 { color: rgb(32, 224, 152) }
+.cov10 { color: rgb(20, 236, 155) }
+
+		</style>
+	</head>
+	<body>
+		<div id="topbar">
+			<div id="nav">
+				<select id="files">
+				
+				<option value="file0">github.com/chack-check/organizations-service/domain/files/models/main.go (38.5%)</option>
+				
+				<option value="file1">github.com/chack-check/organizations-service/domain/membership/models/main.go (64.6%)</option>
+				
+				<option value="file2">github.com/chack-check/organizations-service/domain/organizations/handlers.go (32.4%)</option>
+				
+				<option value="file3">github.com/chack-check/organizations-service/domain/organizations/models/main.go (68.1%)</option>
+				
+				<option value="file4">github.com/chack-check/organizations-service/domain/organizations/test_adapters.go (30.8%)</option>
+				
+				</select>
+			</div>
+			<div id="legend">
+				<span>not tracked</span>
+			
+				<span class="cov0">not covered</span>
+				<span class="cov8">covered</span>
+			
+			</div>
+		</div>
+		<div id="content">
+		
+		<pre class="file" id="file0" style="display: none">package models
+
+type SavedFile struct {
+        originalUrl       string
+        originalFilename  string
+        convertedUrl      *string
+        convertedFilename *string
+}
+
+func (file SavedFile) GetOriginalUrl() string <span class="cov8" title="1">{
+        return file.originalUrl
+}</span>
+
+func (file SavedFile) GetOriginalFilename() string <span class="cov8" title="1">{
+        return file.originalFilename
+}</span>
+
+func (file SavedFile) GetConvertedUrl() *string <span class="cov8" title="1">{
+        return file.convertedUrl
+}</span>
+
+func (file SavedFile) GetConvertedFilename() *string <span class="cov8" title="1">{
+        return file.convertedFilename
+}</span>
+
+type UploadingFileMeta struct {
+        url            string
+        filename       string
+        signature      string
+        systemFiletype string
+}
+
+func (meta *UploadingFileMeta) GetUrl() string <span class="cov0" title="0">{
+        return meta.url
+}</span>
+
+func (meta *UploadingFileMeta) GetFilename() string <span class="cov0" title="0">{
+        return meta.filename
+}</span>
+
+func (meta *UploadingFileMeta) GetSignature() string <span class="cov0" title="0">{
+        return meta.signature
+}</span>
+
+func (meta *UploadingFileMeta) GetSystemFiletype() string <span class="cov0" title="0">{
+        return meta.systemFiletype
+}</span>
+
+type UploadingFile struct {
+        original  UploadingFileMeta
+        converted *UploadingFileMeta
+}
+
+func (file *UploadingFile) GetOriginal() UploadingFileMeta <span class="cov0" title="0">{
+        return file.original
+}</span>
+
+func (file *UploadingFile) GetConverted() *UploadingFileMeta <span class="cov0" title="0">{
+        return file.converted
+}</span>
+
+func NewUploadingFileMeta(url string, filename string, signature string, systemFiletype string) UploadingFileMeta <span class="cov0" title="0">{
+        return UploadingFileMeta{
+                url:            url,
+                filename:       filename,
+                signature:      signature,
+                systemFiletype: systemFiletype,
+        }
+}</span>
+
+func NewUplaodingFile(original UploadingFileMeta, converted *UploadingFileMeta) UploadingFile <span class="cov0" title="0">{
+        return UploadingFile{
+                original:  original,
+                converted: converted,
+        }
+}</span>
+
+func NewSavedFile(originalUrl string, originalFilename string, convertedUrl *string, convertedFilename *string) SavedFile <span class="cov8" title="1">{
+        return SavedFile{
+                originalUrl:       originalUrl,
+                originalFilename:  originalFilename,
+                convertedUrl:      convertedUrl,
+                convertedFilename: convertedFilename,
+        }
+}</span>
+</pre>
+		
+		<pre class="file" id="file1" style="display: none">package models
+
+import (
+        "slices"
+
+        "github.com/chack-check/organizations-service/utils"
+)
+
+type PermissionCategory struct {
+        name string
+        code string
+}
+
+func (category PermissionCategory) GetName() string <span class="cov8" title="1">{
+        return category.name
+}</span>
+
+func (category PermissionCategory) GetCode() string <span class="cov8" title="1">{
+        return category.code
+}</span>
+
+type Permission struct {
+        code     string
+        name     string
+        category *PermissionCategory
+}
+
+func (permission Permission) GetCode() string <span class="cov8" title="1">{
+        return permission.code
+}</span>
+
+func (permission Permission) GetName() string <span class="cov8" title="1">{
+        return permission.name
+}</span>
+
+func (permission Permission) GetCategory() *PermissionCategory <span class="cov8" title="1">{
+        return permission.category
+}</span>
+
+type Role struct {
+        id          int
+        code        string
+        name        string
+        permissions []Permission
+}
+
+func (role Role) GetId() int <span class="cov0" title="0">{
+        return role.id
+}</span>
+
+func (role Role) GetCode() string <span class="cov8" title="1">{
+        return role.code
+}</span>
+
+func (role *Role) SetCode(code string) <span class="cov0" title="0">{
+        role.code = code
+}</span>
+
+func (role Role) GetName() string <span class="cov8" title="1">{
+        return role.name
+}</span>
+
+func (role *Role) SetName(name string) <span class="cov0" title="0">{
+        role.name = name
+}</span>
+
+func (role Role) GetPermissions() []Permission <span class="cov8" title="1">{
+        return role.permissions
+}</span>
+
+func (role *Role) SetPermissions(permissions []Permission) <span class="cov8" title="1">{
+        role.permissions = permissions
+}</span>
+
+type Member struct {
+        userId      int
+        role        *Role
+        permissions []Permission
+}
+
+func (member Member) GetUserId() int <span class="cov8" title="1">{
+        return member.userId
+}</span>
+
+func (member Member) GetRole() *Role <span class="cov8" title="1">{
+        return member.role
+}</span>
+
+func (member Member) GetPermissions() []Permission <span class="cov8" title="1">{
+        return member.permissions
+}</span>
+
+func (member *Member) SetRole(role *Role) <span class="cov8" title="1">{
+        member.role = role
+}</span>
+
+func (member *Member) HasPermission(permissionCode string) bool <span class="cov8" title="1">{
+        for _, perm := range member.GetPermissions() </span><span class="cov8" title="1">{
+                if perm.GetCode() == permissionCode </span><span class="cov8" title="1">{
+                        return true
+                }</span>
+        }
+
+        <span class="cov8" title="1">for _, perm := range member.GetRole().GetPermissions() </span><span class="cov8" title="1">{
+                if perm.GetCode() == permissionCode </span><span class="cov8" title="1">{
+                        return true
+                }</span>
+        }
+
+        <span class="cov8" title="1">return false</span>
+}
+
+func (member *Member) AddPermissions(permissions []Permission) <span class="cov8" title="1">{
+        for _, permission := range permissions </span><span class="cov8" title="1">{
+                addingPermissionsCodes := utils.GetArrayFieldValues(member.permissions, func(perm Permission) string </span><span class="cov8" title="1">{ return perm.GetCode() }</span>)
+                <span class="cov8" title="1">if slices.Contains(addingPermissionsCodes, permission.GetCode()) </span><span class="cov8" title="1">{
+                        continue</span>
+                }
+
+                <span class="cov8" title="1">member.permissions = append(member.permissions, permission)</span>
+        }
+}
+
+func (member *Member) SetPermissions(permissions []Permission) <span class="cov8" title="1">{
+        member.permissions = permissions
+}</span>
+
+func (member *Member) RemovePermissions(permissions []Permission) <span class="cov0" title="0">{
+        var newPermissions []Permission
+        for _, permission := range newPermissions </span><span class="cov0" title="0">{
+                deletingPermissionsCodes := utils.GetArrayFieldValues(permissions, func(perm Permission) string </span><span class="cov0" title="0">{ return perm.GetCode() }</span>)
+                <span class="cov0" title="0">if slices.Contains(deletingPermissionsCodes, permission.GetCode()) </span><span class="cov0" title="0">{
+                        continue</span>
+                }
+
+                <span class="cov0" title="0">newPermissions = append(newPermissions, permission)</span>
+        }
+
+        <span class="cov0" title="0">member.permissions = newPermissions</span>
+}
+
+type CreateRoleData struct {
+        code        string
+        name        string
+        permissions []Permission
+}
+
+func (model CreateRoleData) GetCode() string <span class="cov0" title="0">{
+        return model.code
+}</span>
+
+func (model CreateRoleData) GetName() string <span class="cov0" title="0">{
+        return model.name
+}</span>
+
+func (model CreateRoleData) GetPermissions() []Permission <span class="cov0" title="0">{
+        return model.permissions
+}</span>
+
+type UpdateRoleData struct {
+        code        string
+        name        string
+        permissions []Permission
+}
+
+func (model UpdateRoleData) GetCode() string <span class="cov0" title="0">{
+        return model.code
+}</span>
+
+func (model UpdateRoleData) GetName() string <span class="cov0" title="0">{
+        return model.name
+}</span>
+
+func (model UpdateRoleData) GetPermissions() []Permission <span class="cov0" title="0">{
+        return model.permissions
+}</span>
+
+func NewPermissionCategory(name string, code string) PermissionCategory <span class="cov8" title="1">{
+        return PermissionCategory{
+                name: name,
+                code: code,
+        }
+}</span>
+
+func NewPermission(code string, name string, category *PermissionCategory) Permission <span class="cov8" title="1">{
+        return Permission{
+                code:     code,
+                name:     name,
+                category: category,
+        }
+}</span>
+
+func NewRole(id int, code string, name string, permissions []Permission) Role <span class="cov8" title="1">{
+        return Role{
+                id:          id,
+                code:        code,
+                name:        name,
+                permissions: permissions,
+        }
+}</span>
+
+func NewMember(userId int, role *Role, permissions []Permission) Member <span class="cov8" title="1">{
+        return Member{
+                userId:      userId,
+                role:        role,
+                permissions: permissions,
+        }
+}</span>
+</pre>
+		
+		<pre class="file" id="file2" style="display: none">package organizations
+
+import (
+        "fmt"
+        "slices"
+
+        filesModels "github.com/chack-check/organizations-service/domain/files/models"
+        filesPorts "github.com/chack-check/organizations-service/domain/files/ports"
+        "github.com/chack-check/organizations-service/domain/membership"
+        membershipModels "github.com/chack-check/organizations-service/domain/membership/models"
+        membershipPorts "github.com/chack-check/organizations-service/domain/membership/ports"
+        organizationsModels "github.com/chack-check/organizations-service/domain/organizations/models"
+        organizationsPorts "github.com/chack-check/organizations-service/domain/organizations/ports"
+)
+
+var (
+        ErrMaxOrganizationsLimitReached = fmt.Errorf("max organizations count limit reached")
+        ErrIncorrectFile                = fmt.Errorf("incorrect uploading file")
+        ErrSavingOrganization           = fmt.Errorf("error saving organization")
+        ErrOrganizationNotFound         = fmt.Errorf("organization not found")
+        ErrDeleteMembersPermission      = fmt.Errorf("you have no permission to delete organization members")
+        ErrRoleNotFound                 = fmt.Errorf("role not found")
+        ErrSavingMember                 = fmt.Errorf("error saving member")
+        ErrOrganizationNotOwner         = fmt.Errorf("you are not an owner of organization")
+        ErrMemberNotFound               = fmt.Errorf("member with this user id not found")
+        ErrUpdateOrganizationPermission = fmt.Errorf("you have no permissions to update organization")
+        ErrSavingFile                   = fmt.Errorf("error saving file")
+)
+
+type CreateOrganizationHandler struct {
+        organizationsPort      organizationsPorts.OrganizationsPort
+        organizationEventsPort organizationsPorts.OrganizationEventsPort
+        rolesPort              membershipPorts.RolesPort
+        filesPort              filesPorts.FilesPort
+        subscriptionsPort      organizationsPorts.SubscriptionsPort
+}
+
+func (handler CreateOrganizationHandler) saveAvatar(file *filesModels.UploadingFile) (*filesModels.SavedFile, error) <span class="cov8" title="1">{
+        var savedAvatar *filesModels.SavedFile
+        if file != nil </span><span class="cov8" title="1">{
+                isAvatarValid := handler.filesPort.ValidateUploadingFile(*file)
+                if !isAvatarValid </span><span class="cov0" title="0">{
+                        return nil, ErrIncorrectFile
+                }</span>
+
+                <span class="cov8" title="1">saved, err := handler.filesPort.SaveFile(*file)
+                if err != nil </span><span class="cov0" title="0">{
+                        return nil, err
+                }</span>
+
+                <span class="cov8" title="1">savedAvatar = saved</span>
+        }
+
+        <span class="cov8" title="1">return savedAvatar, nil</span>
+}
+
+func (handler CreateOrganizationHandler) createMemberRole(organizationId int) (*membershipModels.Role, error) <span class="cov8" title="1">{
+        role := membershipModels.NewRole(0, "member", "Member", []membershipModels.Permission{})
+        savedRole, err := handler.rolesPort.Save(role, organizationId)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">return savedRole, nil</span>
+}
+
+func (handler CreateOrganizationHandler) createAdminRole(organizationId int) (*membershipModels.Role, error) <span class="cov8" title="1">{
+        role := membershipModels.NewRole(0, "admin", "Admin", membership.AdminPermissions)
+        savedRole, err := handler.rolesPort.Save(role, organizationId)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">return savedRole, nil</span>
+}
+
+func (handler CreateOrganizationHandler) createOwnerRole(organizationId int) (*membershipModels.Role, error) <span class="cov8" title="1">{
+        role := membershipModels.NewRole(0, "owner", "Owner", membership.AllPermissions)
+        savedRole, err := handler.rolesPort.Save(role, organizationId)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">return savedRole, nil</span>
+}
+
+func (handler CreateOrganizationHandler) createBaseRoles(organizationId int) (*membershipModels.Role, error) <span class="cov8" title="1">{
+        _, err := handler.createMemberRole(organizationId)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">_, err = handler.createAdminRole(organizationId)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">ownerRole, err := handler.createOwnerRole(organizationId)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">return ownerRole, nil</span>
+}
+
+func (handler CreateOrganizationHandler) Execute(userId int, createData organizationsModels.CreateOrganizationData) (*organizationsModels.Organization, error) <span class="cov8" title="1">{
+        conditions, err := handler.subscriptionsPort.GetUserOrganizationConditions(userId)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">openOrganizationsCount := handler.organizationsPort.GetOpenCountForUser(userId)
+        if openOrganizationsCount &gt;= conditions.GetMaxOrganizationsCount() </span><span class="cov0" title="0">{
+                return nil, ErrMaxOrganizationsLimitReached
+        }</span>
+
+        <span class="cov8" title="1">savedAvatar, err := handler.saveAvatar(createData.GetAvatar())
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">organization := organizationsModels.NewOrganization(
+                0,
+                createData.GetTitle(),
+                createData.GetDescription(),
+                conditions.GetMaxMembersCount(),
+                conditions.GetMaxGroupChatsCount(),
+                createData.GetInviteTemplate(),
+                []membershipModels.Member{},
+                userId,
+                savedAvatar,
+        )
+        savedOrganization, err := handler.organizationsPort.Save(organization)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, ErrSavingOrganization
+        }</span>
+
+        <span class="cov8" title="1">ownerRole, err := handler.createBaseRoles(savedOrganization.GetId())
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+        <span class="cov8" title="1">member := membershipModels.NewMember(userId, ownerRole, []membershipModels.Permission{})
+        savedOrganization.SetMembers([]membershipModels.Member{member})
+        savedOrganization, err = handler.organizationsPort.Save(*savedOrganization)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, err
+        }</span>
+
+        <span class="cov8" title="1">handler.organizationEventsPort.SendOrganizationCreated(*savedOrganization)
+        return savedOrganization, nil</span>
+}
+
+type HasUserOrganizationsHandler struct {
+        organizationsPort organizationsPorts.OrganizationsPort
+}
+
+func (handler HasUserOrganizationsHandler) Execute(userId int) bool <span class="cov0" title="0">{
+        activeOrganizations := handler.organizationsPort.GetForUser(userId, false)
+        return len(activeOrganizations) &gt; 0
+}</span>
+
+type GetUserOrganizationsHandler struct {
+        organizationsPort organizationsPorts.OrganizationsPort
+}
+
+func (handler GetUserOrganizationsHandler) Execute(userId int) []organizationsModels.Organization <span class="cov0" title="0">{
+        activeOrganizations := handler.organizationsPort.GetForUser(userId, false)
+        return activeOrganizations
+}</span>
+
+type UpdateOrganizationHandler struct {
+        organizationsPort organizationsPorts.OrganizationsPort
+}
+
+func (handler UpdateOrganizationHandler) Execute(userId int, organizationId int, updateData organizationsModels.UpdateOrganizationData) (*organizationsModels.Organization, error) <span class="cov0" title="0">{
+        organization := handler.organizationsPort.GetByIdForUser(organizationId, userId, false)
+        if organization == nil </span><span class="cov0" title="0">{
+                return nil, ErrOrganizationNotFound
+        }</span>
+
+        <span class="cov0" title="0">organization.SetTitle(updateData.GetTitle())
+        organization.SetDescription(updateData.GetDescription())
+        if updateData.GetInviteTemplate() != nil </span><span class="cov0" title="0">{
+                organization.SetInviteTemplate(*updateData.GetInviteTemplate())
+        }</span>
+
+        <span class="cov0" title="0">savedOrganization, err := handler.organizationsPort.Save(*organization)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, ErrSavingOrganization
+        }</span>
+
+        <span class="cov0" title="0">return savedOrganization, nil</span>
+}
+
+type DeleteMembersHandler struct {
+        membersPort       membershipPorts.MembersPort
+        organizationsPort organizationsPorts.OrganizationsPort
+}
+
+func (handler DeleteMembersHandler) Execute(userId int, organizationId int, deletingMembers []int) (*organizationsModels.Organization, error) <span class="cov0" title="0">{
+        organization := handler.organizationsPort.GetByIdForUser(organizationId, userId, false)
+        if organization == nil </span><span class="cov0" title="0">{
+                return nil, ErrOrganizationNotFound
+        }</span>
+
+        <span class="cov0" title="0">member := handler.membersPort.GetByOrganizationAndUserId(*organization, userId)
+        if member == nil </span><span class="cov0" title="0">{
+                return nil, ErrOrganizationNotFound
+        }</span>
+
+        <span class="cov0" title="0">if !member.HasPermission(membership.RemoveMembersPermission.GetCode()) &amp;&amp; organization.GetOwnerId() != userId </span><span class="cov0" title="0">{
+                return nil, ErrDeleteMembersPermission
+        }</span>
+
+        <span class="cov0" title="0">var organizationDeletingMembers []membershipModels.Member
+        for _, member := range organization.GetMembers() </span><span class="cov0" title="0">{
+                if member.GetUserId() == userId </span><span class="cov0" title="0">{
+                        continue</span>
+                }
+
+                <span class="cov0" title="0">if slices.Contains(deletingMembers, member.GetUserId()) </span><span class="cov0" title="0">{
+                        organizationDeletingMembers = append(organizationDeletingMembers, member)
+                }</span>
+        }
+
+        <span class="cov0" title="0">organization.RemoveMembers(organizationDeletingMembers)
+        savedOrganization, err := handler.organizationsPort.Save(*organization)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, ErrSavingOrganization
+        }</span>
+
+        <span class="cov0" title="0">return savedOrganization, nil</span>
+}
+
+type DeactivateOrganizationHandler struct {
+        organizationsPort      organizationsPorts.OrganizationsPort
+        organizationEventsPort organizationsPorts.OrganizationEventsPort
+}
+
+func (handler DeactivateOrganizationHandler) Execute(userId int, organizationId int) error <span class="cov0" title="0">{
+        organization := handler.organizationsPort.GetByIdForUser(organizationId, userId, false)
+        if organization == nil </span><span class="cov0" title="0">{
+                return ErrOrganizationNotFound
+        }</span>
+
+        <span class="cov0" title="0">if organization.GetOwnerId() != userId </span><span class="cov0" title="0">{
+                return ErrOrganizationNotOwner
+        }</span>
+
+        <span class="cov0" title="0">organization.SetStatus(organizationsModels.OrganizationDeactivated)
+        savedOrganization, err := handler.organizationsPort.Save(*organization)
+        if err != nil </span><span class="cov0" title="0">{
+                return ErrSavingOrganization
+        }</span>
+
+        <span class="cov0" title="0">handler.organizationEventsPort.SendOrganizationDeactivated(*savedOrganization)
+        return nil</span>
+}
+
+type ReactivateOrganization struct {
+        organizationsPort      organizationsPorts.OrganizationsPort
+        organizationEventsPort organizationsPorts.OrganizationEventsPort
+}
+
+func (handler ReactivateOrganization) Execute(userId int, organizationId int) (*organizationsModels.Organization, error) <span class="cov0" title="0">{
+        organization := handler.organizationsPort.GetByIdForUser(organizationId, userId, true)
+        if organization == nil </span><span class="cov0" title="0">{
+                return nil, ErrOrganizationNotFound
+        }</span>
+
+        <span class="cov0" title="0">if organization.GetOwnerId() != userId </span><span class="cov0" title="0">{
+                return nil, ErrOrganizationNotOwner
+        }</span>
+
+        <span class="cov0" title="0">organization.SetStatus(organizationsModels.OrganizationActive)
+        savedOrganization, err := handler.organizationsPort.Save(*organization)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, ErrSavingOrganization
+        }</span>
+
+        <span class="cov0" title="0">handler.organizationEventsPort.SendOrganizationActivated(*savedOrganization)
+        return savedOrganization, nil</span>
+}
+
+type UpdateOrganizationAvatarHandler struct {
+        filesPort              filesPorts.FilesPort
+        organizationsPort      organizationsPorts.OrganizationsPort
+        membersPort            membershipPorts.MembersPort
+        organizationEventsPort organizationsPorts.OrganizationEventsPort
+}
+
+func (handler UpdateOrganizationAvatarHandler) Execute(userId int, organizationId int, newAvatar *filesModels.UploadingFile) (*organizationsModels.Organization, error) <span class="cov0" title="0">{
+        organization := handler.organizationsPort.GetByIdForUser(organizationId, userId, false)
+        if organization == nil </span><span class="cov0" title="0">{
+                return nil, ErrOrganizationNotFound
+        }</span>
+
+        <span class="cov0" title="0">member := handler.membersPort.GetByOrganizationAndUserId(*organization, userId)
+        if member == nil </span><span class="cov0" title="0">{
+                return nil, ErrMemberNotFound
+        }</span>
+
+        <span class="cov0" title="0">if member.HasPermission(membership.EditOrganizationPermission.GetCode()) &amp;&amp; organization.GetOwnerId() != userId </span><span class="cov0" title="0">{
+                return nil, ErrUpdateOrganizationPermission
+        }</span>
+
+        <span class="cov0" title="0">if newAvatar == nil </span><span class="cov0" title="0">{
+                organization.SetAvatar(nil)
+        }</span> else<span class="cov0" title="0"> {
+                if !handler.filesPort.ValidateUploadingFile(*newAvatar) </span><span class="cov0" title="0">{
+                        return nil, ErrIncorrectFile
+                }</span>
+                <span class="cov0" title="0">savedFile, err := handler.filesPort.SaveFile(*newAvatar)
+                if err != nil </span><span class="cov0" title="0">{
+                        return nil, ErrSavingFile
+                }</span>
+
+                <span class="cov0" title="0">organization.SetAvatar(savedFile)</span>
+        }
+
+        <span class="cov0" title="0">savedOrganization, err := handler.organizationsPort.Save(*organization)
+        if err != nil </span><span class="cov0" title="0">{
+                return nil, ErrSavingOrganization
+        }</span>
+
+        <span class="cov0" title="0">handler.organizationEventsPort.SendOrganizationChanged(*savedOrganization)
+        return savedOrganization, nil</span>
+}
+
+func NewCreateOrganizationHandler(
+        organizationsPort organizationsPorts.OrganizationsPort,
+        organizationEventsPort organizationsPorts.OrganizationEventsPort,
+        rolesPort membershipPorts.RolesPort,
+        filesPort filesPorts.FilesPort,
+        subscriptionsPort organizationsPorts.SubscriptionsPort,
+) CreateOrganizationHandler <span class="cov8" title="1">{
+        return CreateOrganizationHandler{
+                organizationsPort:      organizationsPort,
+                organizationEventsPort: organizationEventsPort,
+                rolesPort:              rolesPort,
+                filesPort:              filesPort,
+                subscriptionsPort:      subscriptionsPort,
+        }
+}</span>
+
+func NewHasUserOrganizationsHandler(organizationsPort organizationsPorts.OrganizationsPort) HasUserOrganizationsHandler <span class="cov0" title="0">{
+        return HasUserOrganizationsHandler{organizationsPort: organizationsPort}
+}</span>
+
+func NewGetUserOrganizationsHandler(organizationsPort organizationsPorts.OrganizationsPort) GetUserOrganizationsHandler <span class="cov0" title="0">{
+        return GetUserOrganizationsHandler{organizationsPort: organizationsPort}
+}</span>
+
+func NewUpdateOrganizationHandler(organizationsPort organizationsPorts.OrganizationsPort) UpdateOrganizationHandler <span class="cov0" title="0">{
+        return UpdateOrganizationHandler{organizationsPort: organizationsPort}
+}</span>
+</pre>
+		
+		<pre class="file" id="file3" style="display: none">package models
+
+import (
+        "slices"
+
+        filesModels "github.com/chack-check/organizations-service/domain/files/models"
+        membershipModels "github.com/chack-check/organizations-service/domain/membership/models"
+        "github.com/chack-check/organizations-service/utils"
+)
+
+type OrganizationStatuses string
+
+var (
+        OrganizationActive      OrganizationStatuses = "active"
+        OrganizationDeactivated OrganizationStatuses = "deactivated"
+)
+
+type CreateOrganizationData struct {
+        title          string
+        description    string
+        inviteTemplate *string
+        avatar         *filesModels.UploadingFile
+}
+
+func (data CreateOrganizationData) GetTitle() string <span class="cov0" title="0">{
+        return data.title
+}</span>
+
+func (data CreateOrganizationData) GetDescription() string <span class="cov0" title="0">{
+        return data.description
+}</span>
+
+func (data CreateOrganizationData) GetInviteTemplate() *string <span class="cov0" title="0">{
+        return data.inviteTemplate
+}</span>
+
+func (data CreateOrganizationData) GetAvatar() *filesModels.UploadingFile <span class="cov0" title="0">{
+        return data.avatar
+}</span>
+
+type UpdateOrganizationData struct {
+        title          string
+        description    string
+        inviteTemplate *string
+}
+
+func (data UpdateOrganizationData) GetTitle() string <span class="cov0" title="0">{
+        return data.title
+}</span>
+
+func (data UpdateOrganizationData) GetDescription() string <span class="cov0" title="0">{
+        return data.description
+}</span>
+
+func (data UpdateOrganizationData) GetInviteTemplate() *string <span class="cov0" title="0">{
+        return data.inviteTemplate
+}</span>
+
+type OrganizationConditions struct {
+        maxOrganizationsCount int
+        maxMembersCount       int
+        maxGroupChatsCount    int
+}
+
+func (conditions OrganizationConditions) GetMaxOrganizationsCount() int <span class="cov0" title="0">{
+        return conditions.maxOrganizationsCount
+}</span>
+
+func (conditions OrganizationConditions) GetMaxMembersCount() int <span class="cov0" title="0">{
+        return conditions.maxMembersCount
+}</span>
+
+func (conditions OrganizationConditions) GetMaxGroupChatsCount() int <span class="cov0" title="0">{
+        return conditions.maxGroupChatsCount
+}</span>
+
+type Organization struct {
+        id                 int
+        title              string
+        description        string
+        maxMembersCount    int
+        maxGroupChatsCount int
+        status             OrganizationStatuses
+        inviteTemplate     *string
+        members            []membershipModels.Member
+        ownerId            int
+        avatar             *filesModels.SavedFile
+}
+
+func (organization Organization) GetId() int <span class="cov8" title="1">{
+        return organization.id
+}</span>
+
+func (organization Organization) GetTitle() string <span class="cov8" title="1">{
+        return organization.title
+}</span>
+
+func (organization *Organization) SetTitle(newTitle string) <span class="cov8" title="1">{
+        organization.title = newTitle
+}</span>
+
+func (organization Organization) GetDescription() string <span class="cov8" title="1">{
+        return organization.description
+}</span>
+
+func (organization *Organization) SetDescription(newDescription string) <span class="cov8" title="1">{
+        organization.description = newDescription
+}</span>
+
+func (organization Organization) GetMaxMembersCount() int <span class="cov8" title="1">{
+        return organization.maxMembersCount
+}</span>
+
+func (organization *Organization) SetMaxMembersCount(count int) <span class="cov8" title="1">{
+        organization.maxMembersCount = count
+}</span>
+
+func (organization Organization) GetStatus() OrganizationStatuses <span class="cov0" title="0">{
+        return organization.status
+}</span>
+
+func (organization *Organization) SetStatus(status OrganizationStatuses) <span class="cov0" title="0">{
+        organization.status = status
+}</span>
+
+func (organization Organization) GetMaxGroupChatsCount() int <span class="cov8" title="1">{
+        return organization.maxGroupChatsCount
+}</span>
+
+func (organization *Organization) SetMaxGroupChatsCount(count int) <span class="cov8" title="1">{
+        organization.maxGroupChatsCount = count
+}</span>
+
+func (organization Organization) GetInviteTemplate() *string <span class="cov8" title="1">{
+        return organization.inviteTemplate
+}</span>
+
+func (organization *Organization) SetInviteTemplate(template string) <span class="cov8" title="1">{
+        organization.inviteTemplate = &amp;template
+}</span>
+
+func (organization Organization) GetMembers() []membershipModels.Member <span class="cov8" title="1">{
+        return organization.members
+}</span>
+
+func (organization *Organization) AddMembers(members []membershipModels.Member) <span class="cov8" title="1">{
+        newMembers := organization.members
+        for _, member := range members </span><span class="cov8" title="1">{
+                membersIds := utils.GetArrayFieldValues(organization.members, func(v membershipModels.Member) int </span><span class="cov8" title="1">{ return v.GetUserId() }</span>)
+                <span class="cov8" title="1">if slices.Contains(membersIds, member.GetUserId()) </span><span class="cov8" title="1">{
+                        continue</span>
+                }
+
+                <span class="cov8" title="1">newMembers = append(newMembers, member)</span>
+        }
+
+        <span class="cov8" title="1">organization.members = newMembers</span>
+}
+
+func (organization *Organization) SetMembers(members []membershipModels.Member) <span class="cov8" title="1">{
+        organization.members = members
+}</span>
+
+func (organization *Organization) RemoveMembers(members []membershipModels.Member) <span class="cov8" title="1">{
+        var newMembers []membershipModels.Member
+        for _, member := range organization.members </span><span class="cov8" title="1">{
+                deletingMembersIds := utils.GetArrayFieldValues(members, func(item membershipModels.Member) int </span><span class="cov8" title="1">{ return item.GetUserId() }</span>)
+                <span class="cov8" title="1">if !slices.Contains(deletingMembersIds, member.GetUserId()) </span><span class="cov8" title="1">{
+                        newMembers = append(newMembers, member)
+                }</span>
+        }
+
+        <span class="cov8" title="1">organization.members = newMembers</span>
+}
+
+func (organization Organization) GetOwnerId() int <span class="cov8" title="1">{
+        return organization.ownerId
+}</span>
+
+func (organization Organization) GetAvatar() *filesModels.SavedFile <span class="cov8" title="1">{
+        return organization.avatar
+}</span>
+
+func (organization *Organization) SetAvatar(avatar *filesModels.SavedFile) <span class="cov8" title="1">{
+        organization.avatar = avatar
+}</span>
+
+func NewOrganization(id int, title string, description string, maxMembersCount int, maxGroupChatsCount int, inviteTemplate *string, members []membershipModels.Member, ownerId int, avatar *filesModels.SavedFile) Organization <span class="cov8" title="1">{
+        return Organization{
+                id:                 id,
+                title:              title,
+                description:        description,
+                maxMembersCount:    maxMembersCount,
+                maxGroupChatsCount: maxGroupChatsCount,
+                inviteTemplate:     inviteTemplate,
+                members:            members,
+                ownerId:            ownerId,
+                avatar:             avatar,
+        }
+}</span>
+
+func NewOrganizationConditions(maxOrganizationsCount int, maxMembersCount int, maxGroupChatsCount int) OrganizationConditions <span class="cov0" title="0">{
+        return OrganizationConditions{
+                maxOrganizationsCount: maxOrganizationsCount,
+                maxMembersCount:       maxMembersCount,
+                maxGroupChatsCount:    maxGroupChatsCount,
+        }
+}</span>
+
+func NewCreateOrganizationData(
+        title string,
+        description string,
+        inviteTemplate *string,
+        avatar *filesModels.UploadingFile,
+) CreateOrganizationData <span class="cov0" title="0">{
+        return CreateOrganizationData{
+                title:          title,
+                description:    description,
+                inviteTemplate: inviteTemplate,
+                avatar:         avatar,
+        }
+}</span>
+
+func NewUpdateOrganizationData(
+        title string,
+        description string,
+        inviteTemplate *string,
+) UpdateOrganizationData <span class="cov0" title="0">{
+        return UpdateOrganizationData{
+                title:          title,
+                description:    description,
+                inviteTemplate: inviteTemplate,
+        }
+}</span>
+</pre>
+		
+		<pre class="file" id="file4" style="display: none">package organizations
+
+import (
+        membershipModels "github.com/chack-check/organizations-service/domain/membership/models"
+        organizationsModels "github.com/chack-check/organizations-service/domain/organizations/models"
+)
+
+type MockOrganizationsAdapter struct{}
+
+func (adapter MockOrganizationsAdapter) Save(organization organizationsModels.Organization) (*organizationsModels.Organization, error) <span class="cov8" title="1">{
+        return &amp;organization, nil
+}</span>
+
+func (adapter MockOrganizationsAdapter) GetForUser(userId int, includeNotActive bool) []organizationsModels.Organization <span class="cov0" title="0">{
+        role := membershipModels.NewRole(1, "member", "Member", []membershipModels.Permission{})
+        member := membershipModels.NewMember(userId, &amp;role, []membershipModels.Permission{})
+        members := []membershipModels.Member{member}
+        return []organizationsModels.Organization{
+                organizationsModels.NewOrganization(
+                        1,
+                        "title",
+                        "description",
+                        5,
+                        5,
+                        nil,
+                        members,
+                        2,
+                        nil,
+                ),
+        }
+}</span>
+
+func (adapter MockOrganizationsAdapter) GetByIdForUser(id int, userId int, includeNotActive bool) *organizationsModels.Organization <span class="cov0" title="0">{
+        role := membershipModels.NewRole(1, "member", "Member", []membershipModels.Permission{})
+        member := membershipModels.NewMember(userId, &amp;role, []membershipModels.Permission{})
+        members := []membershipModels.Member{member}
+        organization := organizationsModels.NewOrganization(
+                1,
+                "title",
+                "description",
+                5,
+                5,
+                nil,
+                members,
+                2,
+                nil,
+        )
+        return &amp;organization
+}</span>
+
+func (adapter MockOrganizationsAdapter) GetOpenCountForUser(userId int) int <span class="cov8" title="1">{
+        return 1
+}</span>
+
+type MockOrganizationEventsAdapter struct{}
+
+func (adapter MockOrganizationEventsAdapter) SendOrganizationCreated(organization organizationsModels.Organization) {<span class="cov8" title="1">
+}</span>
+
+func (adapter MockOrganizationEventsAdapter) SendOrganizationChanged(organization organizationsModels.Organization) {<span class="cov0" title="0">
+}</span>
+
+func (adapter MockOrganizationEventsAdapter) SendOrganizationDeactivated(organization organizationsModels.Organization) {<span class="cov0" title="0">
+}</span>
+
+func (adapter MockOrganizationEventsAdapter) SendOrganizationActivated(organization organizationsModels.Organization) {<span class="cov0" title="0">
+}</span>
+
+type MockSubscriptionsAdapter struct{}
+
+func (adapter MockSubscriptionsAdapter) GetUserOrganizationConditions(userId int) (*organizationsModels.OrganizationConditions, error) <span class="cov8" title="1">{
+        conditions := organizationsModels.NewOrganizationConditions(5, 5, 5)
+        return &amp;conditions, nil
+}</span>
+</pre>
+		
+		</div>
+	</body>
+	<script>
+	(function() {
+		var files = document.getElementById('files');
+		var visible;
+		files.addEventListener('change', onChange, false);
+		function select(part) {
+			if (visible)
+				visible.style.display = 'none';
+			visible = document.getElementById(part);
+			if (!visible)
+				return;
+			files.value = part;
+			visible.style.display = 'block';
+			location.hash = part;
+		}
+		function onChange() {
+			select(files.value);
+			window.scrollTo(0, 0);
+		}
+		if (location.hash != "") {
+			select(location.hash.substr(1));
+		}
+		if (!visible) {
+			select("file0");
+		}
+	})();
+	</script>
+</html>

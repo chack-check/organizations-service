@@ -2,6 +2,8 @@ package factories
 
 import (
 	filesModels "github.com/chack-check/organizations-service/domain/files/models"
+	invitesModels "github.com/chack-check/organizations-service/domain/invites/models"
+	"github.com/chack-check/organizations-service/domain/membership"
 	membershipModels "github.com/chack-check/organizations-service/domain/membership/models"
 	organizationsModels "github.com/chack-check/organizations-service/domain/organizations/models"
 	"github.com/chack-check/organizations-service/infrastructure/api/graph/model"
@@ -23,7 +25,7 @@ func UploadingFileToModel(file model.UploadingFile) filesModels.UploadingFile {
 		converted = &meta
 	}
 
-	return filesModels.NewUplaodingFile(
+	return filesModels.NewUploadingFile(
 		UploadingFileMetaToModel(*file.Original),
 		converted,
 	)
@@ -51,6 +53,27 @@ func CreateOrganizationDataToModel(data model.CreateOrganizationData) organizati
 		data.InviteTemplate,
 		avatar,
 	)
+}
+
+func UpdateOrganizationDataToModel(data model.UpdateOrganizationData) organizationsModels.UpdateOrganizationData {
+	return organizationsModels.NewUpdateOrganizationData(
+		data.Title,
+		data.Description,
+		data.InviteTemplate,
+	)
+}
+
+func CreateRoleDataToModel(data model.CreateRoleData) membershipModels.CreateRoleData {
+	var permissionsModels []membershipModels.Permission
+	for _, perm := range data.Permissions {
+		for _, permModel := range membership.AllPermissions {
+			if perm == permModel.GetCode() {
+				permissionsModels = append(permissionsModels, permModel)
+			}
+		}
+	}
+
+	return membershipModels.NewCreateRoleData(data.Code, data.Name, permissionsModels)
 }
 
 func PermissionCategoryModelToResponse(category membershipModels.PermissionCategory) model.PermissionCategory {
@@ -96,7 +119,7 @@ func MemberModelToResponse(member membershipModels.Member) model.Member {
 		permissions = append(permissions, &response)
 	}
 
-	role := RoleModelToResponse(member.GetRole())
+	role := RoleModelToResponse(*member.GetRole())
 	return model.Member{
 		UserID:      member.GetUserId(),
 		Role:        &role,
@@ -127,5 +150,16 @@ func OrganizationModelToResponse(organization organizationsModels.Organization) 
 		Members:            members,
 		OwnerID:            organization.GetOwnerId(),
 		Avatar:             avatar,
+	}
+}
+
+func InviteModelToResponse(invite invitesModels.Invite) model.Invite {
+	role := RoleModelToResponse(invite.GetRole())
+	return model.Invite{
+		ID:             invite.GetId(),
+		OrganizationID: invite.GetOrganization().GetId(),
+		UserID:         invite.GetUserId(),
+		Role:           &role,
+		Status:         invite.GetStatus(),
 	}
 }

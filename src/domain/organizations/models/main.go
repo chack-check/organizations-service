@@ -8,6 +8,13 @@ import (
 	"github.com/chack-check/organizations-service/utils"
 )
 
+type OrganizationStatuses string
+
+var (
+	OrganizationActive      OrganizationStatuses = "active"
+	OrganizationDeactivated OrganizationStatuses = "deactivated"
+)
+
 type CreateOrganizationData struct {
 	title          string
 	description    string
@@ -29,6 +36,24 @@ func (data CreateOrganizationData) GetInviteTemplate() *string {
 
 func (data CreateOrganizationData) GetAvatar() *filesModels.UploadingFile {
 	return data.avatar
+}
+
+type UpdateOrganizationData struct {
+	title          string
+	description    string
+	inviteTemplate *string
+}
+
+func (data UpdateOrganizationData) GetTitle() string {
+	return data.title
+}
+
+func (data UpdateOrganizationData) GetDescription() string {
+	return data.description
+}
+
+func (data UpdateOrganizationData) GetInviteTemplate() *string {
+	return data.inviteTemplate
 }
 
 type OrganizationConditions struct {
@@ -55,6 +80,7 @@ type Organization struct {
 	description        string
 	maxMembersCount    int
 	maxGroupChatsCount int
+	status             OrganizationStatuses
 	inviteTemplate     *string
 	members            []membershipModels.Member
 	ownerId            int
@@ -87,6 +113,14 @@ func (organization Organization) GetMaxMembersCount() int {
 
 func (organization *Organization) SetMaxMembersCount(count int) {
 	organization.maxMembersCount = count
+}
+
+func (organization Organization) GetStatus() OrganizationStatuses {
+	return organization.status
+}
+
+func (organization *Organization) SetStatus(status OrganizationStatuses) {
+	organization.status = status
 }
 
 func (organization Organization) GetMaxGroupChatsCount() int {
@@ -147,8 +181,8 @@ func (organization Organization) GetAvatar() *filesModels.SavedFile {
 	return organization.avatar
 }
 
-func (organization *Organization) SetAvatar(avatar filesModels.SavedFile) {
-	organization.avatar = &avatar
+func (organization *Organization) SetAvatar(avatar *filesModels.SavedFile) {
+	organization.avatar = avatar
 }
 
 func NewOrganization(id int, title string, description string, maxMembersCount int, maxGroupChatsCount int, inviteTemplate *string, members []membershipModels.Member, ownerId int, avatar *filesModels.SavedFile) Organization {
@@ -184,5 +218,17 @@ func NewCreateOrganizationData(
 		description:    description,
 		inviteTemplate: inviteTemplate,
 		avatar:         avatar,
+	}
+}
+
+func NewUpdateOrganizationData(
+	title string,
+	description string,
+	inviteTemplate *string,
+) UpdateOrganizationData {
+	return UpdateOrganizationData{
+		title:          title,
+		description:    description,
+		inviteTemplate: inviteTemplate,
 	}
 }
